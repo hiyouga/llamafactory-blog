@@ -10,3 +10,4 @@ footer.getElementsByTagName('span').forEach(span => {
    }
 
 });
+
