@@ -1,3 +1,109 @@
-baseURL: https://example.org/
-languageCode: en-us
-title: My New Hugo Site
+baseURL: https://hiyouga.github.io/llamafactory-blog/
+languageCode: zh-cn
+title: LlamaFactory Blog
+theme: PaperMod
+
+# 分页配置
+pagination:
+  pagerSize: 5
+
+# SEO 和搜索引擎优化
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+
+# 性能优化
+minify:
+  disableXML: true
+  minifyOutput: true
+
+# 启用 JSON 输出（用于搜索功能）
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+# PaperMod 主题配置
+params:
+  env: production
+  title: LlamaFactory Blog
+  description: "LlamaFactory 官方博客，分享 AI 技术、产品更新和开发经验"
+  keywords: [Blog, AI, LlamaFactory, Machine Learning, 人工智能]
+  author: hiyouga
+  defaultTheme: auto
+  showReadingTime: true
+  showPostNavLinks: true
+  showBreadCrumbs: true
+  showCodeCopyButtons: true
+  showShareButtons: true
+  showToc: true
+  showWordCount: true
+  showRssButtonInSectionTermList: true
+  useHugoToc: true
+
+  # 主页信息卡片
+  homeInfoParams:
+    Title: 欢迎来到 LlamaFactory Blog
+    Content: 这是一个专注于 AI 技术的博客，分享 LlamaFactory 的最新动态和技术见解
+
+  # 社交图标
+  socialIcons:
+    - name: github
+      url: "https://github.com/hiyouga/llamafactory-blog"
+
+  # 编辑文章链接
+  editPost:
+    URL: "https://github.com/hiyouga/llamafactory-blog/edit/main/content"
+    Text: "编辑此文章"
+    appendFilePath: true
+
+  # 搜索配置
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    limit: 10
+    keys: ["title", "permalink", "summary", "content"]
+
+  # 网站图标
+  assets:
+    favicon: "/favicon.ico"
+    favicon16x16: "/favicon-16x16.png"
+    favicon32x32: "/favicon-32x32.png"
+    apple_touch_icon: "/apple-touch-icon.png"
+# 菜单配置
+menu:
+  main:
+    - name: 首页
+      url: /
+      weight: 10
+    - identifier: categories
+      name: 分类
+      url: /categories/
+      weight: 15
+    - identifier: tags
+      name: 标签
+      url: /tags/
+      weight: 20
+    - name: 归档
+      url: /archives/
+      weight: 25
+    - name: 搜索
+      url: /search/
+      weight: 30
+
+# 代码高亮配置
+pygmentsUseClasses: true
+markup:
+  highlight:
+    noClasses: false
+    anchorLineNos: true
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    style: monokai
