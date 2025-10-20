@@ -36,7 +36,7 @@ git submodule update --init --recursive
 
 ```
 ========================================
-    Hugo PaperMod 博客管理脚本
+     LlamaFactory Blog  博客管理脚本
 ========================================
 
 请选择要执行的操作:
