@@ -5,13 +5,13 @@ title: 'Megatron Full Finetune with LLaMaFactory'
 author: 'LLaMaFactory Team'
 ---
 # LLaMaFactory✖️Mcore Adapter
-为了利用上megatron-core中的各项并行技术和解决原先MOE模型在原先工作流中迭代速度过慢的问题，我们通过结合ROLL团队提供的mcore_adapter作为桥梁，结合llamafactory的数据链路和megatron-trainer的训练后端，提供一个新的模型训练工作流
+为了利用上megatron-core中的各项并行技术和解决原先MOE模型在原先工作流中迭代速度过慢的问题，我们通过结合[ROLL团队](https://github.com/alibaba/ROLL)提供的mcore_adapter，结合llamafactory的数据链路和megatron-trainer的训练后端，提供一个新的模型训练工作流
 
 
 ## 🚀 快速开始
 
-### 1. 环境安装
-1. pip
+### 1. 💻 环境安装
+> 📦 pip
 ```bash
 # for megatron-core
 pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
@@ -34,12 +34,12 @@ git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
 cd LLaMA-Factory
 pip install -e ".[torch,metrics]" --no-build-isolation
 ```
-2. docker(推荐)
+> 🐳 docker(推荐)
 
     参考[dockerfile](https://github.com/Kuangdd01/LLaMA-Factory-X/blob/1cef3e5f3d06146442c60bedbb88af529f174512/docker/docker-cuda/Dockerfile.megatron)进行构建
 
-### 2. 启动实验
-> 单机八卡(80gb)
+### 2. 🎯 启动实验
+> 🖥️ 单机八卡(80gb)
 ```bash
 cd LLaMA-Factory
 # qwen2_vl_full
@@ -47,7 +47,7 @@ USE_MCA=1 llamafactory-cli train examples/megatron/qwen2_vl_full.yaml
 # qwen3_moe_full
 USE_MCA=1 llamafactory-cli train examples/megatron/qwen3_moe_full.yaml
 ```
-> 多机实验
+> 🌐 多机实验
 ```bash
 export DISTRIBUTED_ARGS="
     --nproc_per_node 8 \
@@ -88,19 +88,27 @@ USE_MCA=1 torchrun $DISTRIBUTED_ARGS src/train.py \
     --recompute_granularity full
 ```
 
+### 2.1 🔄 权重转换(mcore2hf)
+```bash
+python scripts/megatron_merge.py \
+    --checkpoint_path saves/mca/qwen3_moe_full_id/checkpoint-50/ \
+    --output_path saves/qwen3_moe_hf \
+    --bf16
+```
+
 ### 3. 💡 Tips & 注意事项
 
-#### 3.1 Global Batch Size 计算差异
+#### 3.1 📐 Global Batch Size 计算差异
 在使用 Megatron 训练时，注意 global batch size 的计算相较于之前的设置有细微区别：
 
-**参数说明：**
+**📌 参数说明：**
 - `ga`: gradient_accumulation_steps (梯度累积步数)
 - `ws`: WORLD_SIZE (总进程数)
 - `pp`: pipeline_model_parallel_size (流水线并行大小)
 - `tp`: tensor_model_parallel_size (张量并行大小)
 - `ep`: expert_model_parallel_size (专家并行大小)
 
-**计算公式对比：**
+**🔢 计算公式对比：**
 ```bash
 # 原始计算方式
 origin_global_batch_size = ws * batchsize_per_device * ga
@@ -109,13 +117,13 @@ origin_global_batch_size = ws * batchsize_per_device * ga
 mca_global_batch_size = (ws // pp // tp // ep) * batchsize_per_device * ga 
 ```
 
-#### 3.2 性能优化建议
-- **内存优化**: 启用 `--use_distributed_optimizer` 和 `--overlap_param_gather` 可以显著减少内存使用
-- **通信优化**: 使用 `--overlap_grad_reduce` 可以重叠梯度通信和计算
-- **MOE 优化**: 对于 MOE 模型，建议使用 `--moe_token_dispatcher_type alltoall` 和 `--moe_grouped_gemm true` 获得更好的性能
-- **并行优化**: `gradient_accumulation_steps` 为 PP 的整数倍
+#### 3.2 ⚡ 性能优化建议
+- **💾 内存优化**: 启用 `--use_distributed_optimizer` 和 `--overlap_param_gather` 可以显著减少内存使用
+- **📡 通信优化**: 使用 `--overlap_grad_reduce` 可以重叠梯度通信和计算
+- **🔧 MOE 优化**: 对于 MOE 模型，建议使用 `--moe_token_dispatcher_type alltoall` 和 `--moe_grouped_gemm true` 获得更好的性能
+- **⚙️ 并行优化**: `gradient_accumulation_steps` 为 PP 的整数倍
 
-#### 3.3 常见问题排查
-1. **OOM 错误**: 减少 `per_device_train_batch_size` 或增加 `gradient_accumulation_steps`
-2. **通信超时**: 检查网络连接和 `master_addr`、`master_port` 设置
-3. **并行度设置**: 确保 `pp * tp * ep` 能整除 `ws`
+#### 3.3 🔍 常见问题排查
+1. **💥 OOM 错误**: 减少 `per_device_train_batch_size` 或增加 `gradient_accumulation_steps`
+2. **🌐 通信超时**: 检查网络连接和 `master_addr`、`master_port` 设置
+3. **⚙️ 并行度设置**: 确保 `pp * tp * ep` 能整除 `ws`
