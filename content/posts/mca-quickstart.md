@@ -5,7 +5,7 @@ title: 'Megatron Full Finetune with LLaMaFactory'
 author: 'LLaMaFactory Team'
 ---
 # LLaMaFactory✖️Mcore Adapter
-为了利用上megatron-core中的各项并行技术和解决原先MOE模型在原先工作流中迭代速度过慢的问题，我们通过结合[ROLL团队](https://github.com/alibaba/ROLL)提供的mcore_adapter，结合llamafactory的数据链路和megatron-trainer的训练后端，提供一个新的模型训练工作流
+为了利用上megatron-core中的各项并行技术和GroupGEMM，我们通过结合[ROLL团队](https://github.com/alibaba/ROLL)提供的mcore_adapter，结合llamafactory的数据链路和megatron-trainer的训练后端，提供一个新的模型训练工作流。
 
 
 ## 🚀 快速开始
@@ -36,7 +36,7 @@ pip install -e ".[torch,metrics]" --no-build-isolation
 ```
 > 🐳 docker(推荐)
 
-    参考[dockerfile](https://github.com/Kuangdd01/LLaMA-Factory-X/blob/1cef3e5f3d06146442c60bedbb88af529f174512/docker/docker-cuda/Dockerfile.megatron)进行构建
+参考[dockerfile](https://github.com/Kuangdd01/LLaMA-Factory-X/blob/1cef3e5f3d06146442c60bedbb88af529f174512/docker/docker-cuda/Dockerfile.megatron)进行构建
 
 ### 2. 🎯 启动实验
 > 🖥️ 单机八卡(80gb)
