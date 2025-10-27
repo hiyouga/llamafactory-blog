@@ -5,7 +5,7 @@ title: 'Megatron Full Finetune with LLaMaFactory'
 author: 'LLaMaFactory Team'
 ---
 # LLaMaFactory✖️Mcore Adapter
-为了利用上megatron-core中的各项并行技术和GroupGEMM，我们通过结合[ROLL团队](https://github.com/alibaba/ROLL)提供的mcore_adapter，结合llamafactory的数据链路和megatron-trainer的训练后端，提供一个新的模型训练工作流。
+为充分利用 megatron-core 的并行技术与 GroupGEMM，我们将 [**ROLL 团队**](https://github.com/alibaba/ROLL) 提供的 mcore_adapter 与 LLaMaFactory 的数据链路及 megatron-trainer 的训练后端相结合，构建了一个新的模型训练工作流。
 
 
 ## 🚀 快速开始
@@ -87,8 +87,10 @@ USE_MCA=1 torchrun $DISTRIBUTED_ARGS src/train.py \
     --expert_model_parallel_size 4 \
     --recompute_granularity full
 ```
-
-### 2.1 🔄 权重转换(mcore2hf)
+> 📊 基准测试
+> 
+我们为多模态模型与文本 MOE 模型各提供了一组实验，详情请见 [GitHub 评论](https://github.com/hiyouga/LLaMA-Factory/pull/9237#issue-3492236945) 🔗
+#### 2.1 🔄 权重转换(mcore2hf)
 ```bash
 python scripts/megatron_merge.py \
     --checkpoint_path saves/mca/qwen3_moe_full_id/checkpoint-50/ \
