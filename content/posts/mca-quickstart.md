@@ -90,7 +90,8 @@ USE_MCA=1 torchrun $DISTRIBUTED_ARGS src/train.py \
 > 📊 基准测试
 > 
 我们为多模态模型与文本 MOE 模型各提供了一组实验，详情请见 [GitHub 评论](https://github.com/hiyouga/LLaMA-Factory/pull/9237#issue-3492236945) 🔗
-#### 2.1 🔄 权重转换(mcore2hf)
+#### 🔄 权重转换(mcore2hf)
+我们需要通过权重转换脚本将训练存储下来的mcore类型的训练权重合并为huggingface命名类型的safetensors。
 ```bash
 python scripts/megatron_merge.py \
     --checkpoint_path saves/mca/qwen3_moe_full_id/checkpoint-50/ \
