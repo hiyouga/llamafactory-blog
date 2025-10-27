@@ -1,6 +1,6 @@
 ---
 date: '2025-10-21T16:21:12+08:00'
-draft: true
+draft: false
 title: 'Megatron Full Finetune with LLaMaFactory'
 author: 'LLaMaFactory Team'
 ---
