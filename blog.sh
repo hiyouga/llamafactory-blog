@@ -52,6 +52,32 @@ check_environment() {
         echo -e "${YELLOW}请确保 themes/PaperMod 目录存在${NC}"
         exit 1
     fi
+
+    # 检查 git 配置
+    if ! command -v git &> /dev/null; then
+        echo -e "${RED}错误: Git 未安装${NC}"
+        exit 1
+    fi
+
+    if [ ! -d ".git" ]; then
+        echo -e "${RED}错误: 当前目录不是 Git 仓库${NC}"
+        echo -e "${YELLOW}请先初始化 Git 仓库: git init${NC}"
+        exit 1
+    fi
+
+    # 检查远程仓库
+    if ! git remote get-url origin &> /dev/null; then
+        echo -e "${RED}错误: 未配置远程仓库${NC}"
+        echo -e "${YELLOW}请添加远程仓库: git remote add origin <仓库URL>${NC}"
+        exit 1
+    fi
+
+    # 检查 Git 用户配置
+    if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
+        echo -e "${YELLOW}警告: Git 用户信息未配置${NC}"
+        echo -e "${YELLOW}请配置: git config --global user.name 'Your Name'${NC}"
+        echo -e "${YELLOW}请配置: git config --global user.email 'your.email@example.com'${NC}"
+    fi
 }
 
 # 启动 Hugo 服务器
@@ -119,14 +145,36 @@ deploy_site() {
         git commit -m "feat: 更新博客内容 $(date '+%Y-%m-%d %H:%M:%S')"
     fi
 
+    # 生成随机分支名
+    RANDOM_BRANCH="random-$(date +%s)-$RANDOM"
+    echo -e "${YELLOW}创建随机分支: ${RANDOM_BRANCH}${NC}"
+    
+    # 检查当前分支状态
+    echo -e "${BLUE}当前分支: $(git branch --show-current)${NC}"
+    
+    # 创建并切换到随机分支
+    echo -e "${YELLOW}正在创建分支...${NC}"
+    if ! git checkout -b "$RANDOM_BRANCH"; then
+        echo -e "${RED}创建分支失败！${NC}"
+        echo -e "${YELLOW}尝试删除已存在的分支并重新创建...${NC}"
+        git branch -D "$RANDOM_BRANCH" 2>/dev/null
+        git checkout -b "$RANDOM_BRANCH"
+    fi
+    
+    # 检查远程仓库配置
+    echo -e "${BLUE}远程仓库: $(git remote -v)${NC}"
+    
     # 推送到 GitHub
-    echo -e "${YELLOW}正在推送到 GitHub...${NC}"
-    git push origin main
+    echo -e "${YELLOW}正在推送到 GitHub 分支: ${RANDOM_BRANCH}${NC}"
+    if ! git push origin "$RANDOM_BRANCH"; then
+        echo -e "${RED}推送失败！尝试设置上游分支...${NC}"
+        git push --set-upstream origin "$RANDOM_BRANCH"
+    fi
 
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}发布成功！${NC}"
-        echo -e "${BLUE}GitHub Actions 将自动构建并发布到 GitHub Pages${NC}"
-    echo -e "${BLUE}访问地址: https://hiyouga.github.io/llamafactory-blog/${NC}"
+        echo -e "${BLUE}已推送到分支: ${RANDOM_BRANCH}${NC}"
+        echo -e "${BLUE}分支地址: https://github.com/hiyouga/llamafactory-blog/tree/${RANDOM_BRANCH}${NC}"
         echo -e "${YELLOW}发布过程可能需要几分钟，请稍后查看${NC}"
     else
         echo -e "${RED}发布失败！${NC}"
