@@ -1,249 +1,252 @@
 #!/bin/bash
 
-# LlamaFactory Blog 博客管理脚本
-# 作者: inksnow
-# 用途: 管理 LlamaFactory Blog 博客的启动、停止、构建等操作
+# LlamaFactory Blog Console Panel
+# Author: inksnow
+# Purpose: Manage LlamaFactory Blog blog posts, server, and GitHub repository
+# Version: 1.0.1
+# Date: 2025-11-03
 
-# 设置颜色输出
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
+YELLOW_B='\033[1;33m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
 NC='\033[0m' # No Color
 
-# 项目目录（自动获取当前目录）
+# Project Directory
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# 显示帮助信息
+# Display Help Information
 show_help() {
     echo -e "${BLUE}========================================${NC}"
-    echo -e "${BLUE}    LlamaFactory Blog 博客管理脚本${NC}"
+    echo -e "${BLUE}    LlamaFactory Blog Console Panel     ${NC}"
     echo -e "${BLUE}========================================${NC}"
     echo ""
-    echo -e "${YELLOW}请选择要执行的操作:${NC}"
+    echo -e "${YELLOW_B}Available Commands:${NC}"
     echo ""
-    echo -e "  ${GREEN}1${NC} - 启动开发服务器"
-    echo -e "  ${GREEN}2${NC} - 创建新文章"
-    echo -e "  ${GREEN}3${NC} - 发布到 GitHub Pages"
-    echo -e "  ${GREEN}4${NC} - 查看服务器状态"
-    echo -e "  ${GREEN}0${NC} - 退出"
+    echo -e "  ${GREEN}1${NC} - Start Debug Server"
+    echo -e "  ${GREEN}2${NC} - Create New Post"
+    echo -e "  ${GREEN}3${NC} - Push to GitHub"
+    echo -e "  ${GREEN}4${NC} - Check Server Status"
+    echo -e "  ${GREEN}0${NC} - Exit"
     echo ""
-    echo -e "${PURPLE}示例: 输入 1 启动本地服务器，输入 3 发布网站${NC}"
+    echo -e "${PURPLE}Example: Input 1 to start debug server, input 3 to push to GitHub${NC}"
 }
 
-# 检查环境
+# Check Environment
 check_environment() {
     if [ ! -f "hugo.yaml" ]; then
-        echo -e "${RED}错误: 请在项目根目录运行此脚本${NC}"
-    echo -e "${YELLOW}当前目录: $(pwd)${NC}"
-    echo -e "${YELLOW}脚本位置: $PROJECT_DIR${NC}"
+        echo -e "${RED}Error: Please run this script in the project root directory${NC}"
+        echo -e "${YELLOW_B}Current directory: $(pwd)${NC}"
+        echo -e "${YELLOW_B}Script location: $PROJECT_DIR${NC}"
         exit 1
     fi
 
     if ! command -v hugo &> /dev/null; then
-        echo -e "${RED}错误: Hugo 未安装${NC}"
-        echo -e "${YELLOW}请先安装 Hugo: sudo snap install hugo --channel=extended/stable${NC}"
+        echo -e "${RED}Error: Hugo is not installed${NC}"
+        echo -e "${YELLOW_B}Please install Hugo: https://gohugo.io/installation/${NC}"
         exit 1
     fi
 
     if [ ! -d "themes/PaperMod" ]; then
-        echo -e "${RED}错误: PaperMod 主题未找到${NC}"
-        echo -e "${YELLOW}请确保 themes/PaperMod 目录存在${NC}"
+        echo -e "${RED}Error: PaperMod theme not found${NC}"
+        echo -e "${YELLOW_B}Please install PaperMod theme: git submodule update --init --recursive${NC}"
         exit 1
     fi
 
-    # 检查 git 配置
+    # Check Git installation
     if ! command -v git &> /dev/null; then
-        echo -e "${RED}错误: Git 未安装${NC}"
+        echo -e "${RED}Error: Git is not installed${NC}"
         exit 1
     fi
 
     if [ ! -d ".git" ]; then
-        echo -e "${RED}错误: 当前目录不是 Git 仓库${NC}"
-        echo -e "${YELLOW}请先初始化 Git 仓库: git init${NC}"
+        echo -e "${RED}Error: Current directory is not a Git repository${NC}"
+        echo -e "${YELLOW_B}Please initialize Git repository: git init${NC}"
         exit 1
     fi
 
-    # 检查远程仓库
+    # Check remote repository
     if ! git remote get-url origin &> /dev/null; then
-        echo -e "${RED}错误: 未配置远程仓库${NC}"
-        echo -e "${YELLOW}请添加远程仓库: git remote add origin <仓库URL>${NC}"
+        echo -e "${RED}Error: No remote repository configured${NC}"
+        echo -e "${YELLOW_B}Please add remote repository: git remote add origin <repository-url>${NC}"
         exit 1
     fi
 
-    # 检查 Git 用户配置
+    # Check Git user configuration
     if [ -z "$(git config user.name)" ] || [ -z "$(git config user.email)" ]; then
-        echo -e "${YELLOW}警告: Git 用户信息未配置${NC}"
-        echo -e "${YELLOW}请配置: git config --global user.name 'Your Name'${NC}"
-        echo -e "${YELLOW}请配置: git config --global user.email 'your.email@example.com'${NC}"
+        echo -e "${YELLOW_B}Warning: Git user information not configured${NC}"
+        echo -e "${YELLOW_B}Please configure: git config --global user.name 'Your Name'${NC}"
+        echo -e "${YELLOW_B}Please configure: git config --global user.email 'your.email@example.com'${NC}"
+        exit 1
     fi
 }
 
-# 启动 Hugo 服务器
+# Start Hugo server
 start_server() {
     check_environment
 
-    echo -e "${YELLOW}正在启动 Hugo 开发服务器...${NC}"
+    echo -e "${YELLOW_B}正在启动 Hugo 开发服务器...${NC}"
 
-    # 停止可能正在运行的服务器
-    pkill -f "hugo server" 2>/dev/null || true
-    lsof -ti:1313 | xargs kill -9 2>/dev/null || true
+    # Stop any running server
+    pkill -f "hugo server" 2> /dev/null || true
+    lsof -ti:1313 | xargs kill -9 2> /dev/null || true
     sleep 2
 
-    echo -e "${GREEN}服务器启动中...${NC}"
-    echo -e "${BLUE}服务器地址: http://localhost:1313${NC}"
-    echo -e "${BLUE}按 Ctrl+C 停止服务器${NC}"
+    echo -e "${GREEN}Server started successfully!${NC}"
+    echo -e "${BLUE}Server address: http://localhost:1313${NC}"
+    echo -e "${BLUE}Press Ctrl+C to stop the server${NC}"
     echo -e "${BLUE}========================================${NC}"
 
     hugo server -D --disableFastRender --bind 0.0.0.0 --port 1313
 }
 
-# 创建新文章
+# Create new post
 new_post() {
     check_environment
 
     if [ -z "$1" ]; then
-        echo -e "${RED}错误: 请指定文章路径${NC}"
-        echo -e "${YELLOW}用法: $0 new posts/文章名.md${NC}"
+        echo -e "${RED}Error: Please specify the post path${NC}"
+        echo -e "${YELLOW_B}Usage: $0 new <filename>.md${NC}"
         exit 1
     fi
 
-    echo -e "${YELLOW}正在创建新文章: $1${NC}"
-    hugo new "$1"
+    echo -e "${YELLOW_B}Creating new post: $1${NC}"
+    hugo new "posts/$1"
 
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}文章创建成功: content/$1${NC}"
-        echo -e "${BLUE}请编辑 content/$1 文件${NC}"
+        echo -e "${GREEN}Post created successfully: content/posts/$1${NC}"
+        echo -e "${BLUE}Please edit: content/posts/$1${NC}"
     else
-        echo -e "${RED}文章创建失败！${NC}"
+        echo -e "${RED}Post creation failed!${NC}"
         exit 1
     fi
 }
 
-# 查看服务器状态
+# Check server status
 check_status() {
     if pgrep -f "hugo server" > /dev/null; then
-        echo -e "${GREEN}Hugo 服务器正在运行${NC}"
-        echo -e "${BLUE}进程 ID: $(pgrep -f "hugo server")${NC}"
-        echo -e "${BLUE}访问地址: http://localhost:1313${NC}"
+        echo -e "${GREEN}Hugo server is running${NC}"
+        echo -e "${BLUE}Process ID: $(pgrep -f "hugo server")${NC}"
+        echo -e "${BLUE}Server address: http://localhost:1313${NC}"
     else
-        echo -e "${RED}Hugo 服务器未运行${NC}"
+        echo -e "${RED}Hugo server is not running${NC}"
     fi
 }
 
-# 发布到 GitHub Pages
+# Deploy site to GitHub Pages
 deploy_site() {
     check_environment
 
-    echo -e "${YELLOW}正在发布到 GitHub Pages...${NC}"
+    echo -e "${YELLOW_B}Publishing site to GitHub Pages...${NC}"
 
-    # 检查是否有未提交的更改
+    # Check for uncommitted changes
     if [ -n "$(git status --porcelain)" ]; then
-        echo -e "${YELLOW}检测到未提交的更改，正在提交...${NC}"
+        echo -e "${YELLOW_B}Detected uncommitted changes, committing...${NC}"
         git add .
-        git commit -m "feat: 更新博客内容 $(date '+%Y-%m-%d %H:%M:%S')"
+        git commit -m "feat: Publish site $(date '+%Y-%m-%d %H:%M:%S')"
     fi
 
-    # 生成随机分支名
+    # Generate random branch name
     RANDOM_BRANCH="random-$(date +%s)-$RANDOM"
-    echo -e "${YELLOW}创建随机分支: ${RANDOM_BRANCH}${NC}"
-    
-    # 检查当前分支状态
-    echo -e "${BLUE}当前分支: $(git branch --show-current)${NC}"
-    
-    # 创建并切换到随机分支
-    echo -e "${YELLOW}正在创建分支...${NC}"
+    echo -e "${YELLOW_B}Creating random branch: ${RANDOM_BRANCH}${NC}"
+
+    # Check current branch status
+    echo -e "${BLUE}Current branch: $(git branch --show-current)${NC}"
+
+    # Create and switch to random branch
+    echo -e "${YELLOW_B}Creating branch...${NC}"
     if ! git checkout -b "$RANDOM_BRANCH"; then
-        echo -e "${RED}创建分支失败！${NC}"
-        echo -e "${YELLOW}尝试删除已存在的分支并重新创建...${NC}"
+        echo -e "${RED}Branch creation failed!${NC}"
+        echo -e "${YELLOW_B}Attempting to delete existing branch and recreate...${NC}"
         git branch -D "$RANDOM_BRANCH" 2>/dev/null
         git checkout -b "$RANDOM_BRANCH"
     fi
+
+    # Check remote repository configuration
+    echo -e "${BLUE}Remote repository: $(git remote -v)${NC}"
     
-    # 检查远程仓库配置
-    echo -e "${BLUE}远程仓库: $(git remote -v)${NC}"
-    
-    # 推送到 GitHub
-    echo -e "${YELLOW}正在推送到 GitHub 分支: ${RANDOM_BRANCH}${NC}"
+    # Push to GitHub
+    echo -e "${YELLOW_B}Pushing to branch: ${RANDOM_BRANCH}${NC}"
     if ! git push origin "$RANDOM_BRANCH"; then
-        echo -e "${RED}推送失败！尝试设置上游分支...${NC}"
+        echo -e "${RED}Push failed! Attempting to set upstream branch...${NC}"
         git push --set-upstream origin "$RANDOM_BRANCH"
     fi
 
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}发布成功！${NC}"
-        echo -e "${BLUE}已推送到分支: ${RANDOM_BRANCH}${NC}"
-        echo -e "${BLUE}分支地址: https://github.com/hiyouga/llamafactory-blog/tree/${RANDOM_BRANCH}${NC}"
-        echo -e "${YELLOW}发布过程可能需要几分钟，请稍后查看${NC}"
+        echo -e "${GREEN}Publish successful!${NC}"
+        echo -e "${BLUE}Pushed to branch: ${RANDOM_BRANCH}${NC}"
+        echo -e "${BLUE}Branch URL: https://github.com/hiyouga/llamafactory-blog/tree/${RANDOM_BRANCH}${NC}"
+        echo -e "${YELLOW_B}Publish process may take a few minutes, please check later${NC}"
     else
-        echo -e "${RED}发布失败！${NC}"
+        echo -e "${RED}Publish failed!${NC}"
         exit 1
     fi
 }
 
-# 交互式菜单
+# Interactive menu
 interactive_menu() {
     while true; do
         show_help
         echo ""
-        echo -e "${YELLOW}请输入选项 (0-4): ${NC}"
+        echo -e "${YELLOW_B}Please enter your choice (0-4): ${NC}"
         read -r choice
 
         case "$choice" in
             1)
-                echo -e "${GREEN}启动开发服务器...${NC}"
+                echo -e "${GREEN}Starting Hugo development server...${NC}"
                 start_server
                 break
                 ;;
             2)
-                echo -e "${YELLOW}请输入文章路径 (例如: posts/我的文章.md): ${NC}"
+                echo -e "${YELLOW_B}Please enter the file name (e.g., my-post.md): ${NC}"
                 read -r post_path
                 if [ -n "$post_path" ]; then
-                    echo -e "${GREEN}创建新文章: $post_path${NC}"
+                    echo -e "${GREEN}Creating new post: $post_path${NC}"
                     new_post "$post_path"
                 else
-                    echo -e "${RED}文章路径不能为空${NC}"
+                    echo -e "${RED}Post path cannot be empty${NC}"
                 fi
-                echo -e "${GREEN}按任意键继续...${NC}"
+                echo -e "${GREEN}Press any key to continue...${NC}"
                 read -r
                 ;;
             3)
-                echo -e "${GREEN}发布到 GitHub Pages...${NC}"
+                echo -e "${GREEN}Publishing site to GitHub Pages...${NC}"
                 deploy_site
-                echo -e "${GREEN}按任意键继续...${NC}"
+                echo -e "${GREEN}Press any key to continue...${NC}"
                 read -r
                 ;;
             4)
-                echo -e "${GREEN}查看服务器状态...${NC}"
+                echo -e "${GREEN}Checking server status...${NC}"
                 check_status
-                echo -e "${GREEN}按任意键继续...${NC}"
+                echo -e "${GREEN}Press any key to continue...${NC}"
                 read -r
                 ;;
             0)
-                echo -e "${GREEN}退出程序${NC}"
+                echo -e "${GREEN}Exiting program...${NC}"
                 exit 0
                 ;;
             *)
-                echo -e "${RED}无效选项，请输入 0-4${NC}"
-                echo -e "${GREEN}按任意键继续...${NC}"
+                echo -e "${RED}Invalid option, please enter 0-4${NC}"
+                echo -e "${GREEN}Press any key to continue...${NC}"
                 read -r
                 ;;
         esac
 
-        # 清屏（除了启动服务器的选项）
+        # Clear screen
         if [ "$choice" != "1" ]; then
             clear
         fi
     done
 }
 
-# 主程序
+# Main program
 if [ $# -eq 0 ]; then
-    # 没有参数时显示交互式菜单
+    # No arguments, display interactive menu
     interactive_menu
 else
-    # 有参数时使用命令行模式
+    # With arguments, use command line mode
     case "$1" in
         start)
             start_server
@@ -264,9 +267,9 @@ else
             interactive_menu
             ;;
         *)
-            echo -e "${RED}未知选项: $1${NC}"
-            echo -e "${YELLOW}使用 $0 显示交互式菜单${NC}"
-            echo -e "${YELLOW}使用 $0 help 显示帮助信息${NC}"
+            echo -e "${RED}Unknown option: $1${NC}"
+            echo -e "${YELLOW_B}Use $0 menu to display interactive menu${NC}"
+            echo -e "${YELLOW_B}Use $0 help to display help information${NC}"
             exit 1
             ;;
     esac

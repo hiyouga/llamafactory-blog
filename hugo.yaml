@@ -29,8 +29,8 @@ outputs:
 params:
   env: production
   title: LlamaFactory Blog
-  description: "LlamaFactory 官方博客，分享 AI 技术、产品更新和开发经验"
-  keywords: [Blog, AI, LlamaFactory, Machine Learning, 人工智能]
+  description: "LlamaFactory 官方博客"
+  keywords: [LLM, AI, LlamaFactory, Machine Learning, 人工智能]
   author: hiyouga
   defaultTheme: auto
   showReadingTime: true
@@ -45,13 +45,13 @@ params:
 
   # 主页信息卡片
   homeInfoParams:
-    Title: 欢迎来到 LlamaFactory Blog
-    Content: 这是一个专注于 AI 技术的博客，分享 LlamaFactory 的最新动态和技术见解
+    Title: LlamaFactory Blog
+    Content: 查看 LlamaFactory 的最新动态
 
   # 社交图标
   socialIcons:
     - name: github
-      url: "https://github.com/hiyouga/llamafactory-blog"
+      url: "https://github.com/hiyouga/LLaMA-Factory"
 
   # 编辑文章链接
   editPost:
@@ -76,26 +76,27 @@ params:
     favicon16x16: "/favicon-16x16.png"
     favicon32x32: "/favicon-32x32.png"
     apple_touch_icon: "/apple-touch-icon.png"
+
 # 菜单配置
 menu:
   main:
     - name: 首页
       url: /
       weight: 10
-    - identifier: categories
-      name: 分类
-      url: /categories/
-      weight: 15
-    - identifier: tags
-      name: 标签
-      url: /tags/
-      weight: 20
+    # - identifier: categories
+    #   name: 分类
+    #   url: /categories/
+    #   weight: 15
+    # - identifier: tags
+    #   name: 标签
+    #   url: /tags/
+    #   weight: 20
     - name: 归档
       url: /archives/
       weight: 25
-    - name: 搜索
-      url: /search/
-      weight: 30
+    # - name: 搜索
+    #   url: /search/
+    #   weight: 30
 
 # 代码高亮配置
 pygmentsUseClasses: true
