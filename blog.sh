@@ -145,11 +145,11 @@ deploy_site() {
     if [ -n "$(git status --porcelain)" ]; then
         echo -e "${YELLOW_B}Detected uncommitted changes, committing...${NC}"
         git add .
-        git commit -m "feat: Publish site $(date '+%Y-%m-%d %H:%M:%S')"
+        git commit -m "[feat] Publish site $(date '+%Y-%m-%d %H:%M:%S')"
     fi
 
     # Generate random branch name
-    RANDOM_BRANCH="random-$(date +%s)-$RANDOM"
+    RANDOM_BRANCH="tmp-$(date +%s)-$RANDOM"
     echo -e "${YELLOW_B}Creating random branch: ${RANDOM_BRANCH}${NC}"
 
     # Check current branch status
@@ -166,7 +166,7 @@ deploy_site() {
 
     # Check remote repository configuration
     echo -e "${BLUE}Remote repository: $(git remote -v)${NC}"
-    
+
     # Push to GitHub
     echo -e "${YELLOW_B}Pushing to branch: ${RANDOM_BRANCH}${NC}"
     if ! git push origin "$RANDOM_BRANCH"; then
@@ -183,6 +183,11 @@ deploy_site() {
         echo -e "${RED}Publish failed!${NC}"
         exit 1
     fi
+
+    # Clean up temporary branch
+    echo -e "${YELLOW_B}Cleaning up branch: ${RANDOM_BRANCH}${NC}"
+    git checkout main && git pull origin main
+    git branch -D "$RANDOM_BRANCH" 2>/dev/null
 }
 
 # Interactive menu
