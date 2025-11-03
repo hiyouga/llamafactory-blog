@@ -1,31 +1,65 @@
 baseURL: https://hiyouga.github.io/llamafactory-blog/
-languageCode: zh-cn
+languageCode: zh
 title: LlamaFactory Blog
 theme: PaperMod
 
-# 分页配置
+# Pagination configuration
 pagination:
   pagerSize: 5
 
-# SEO 和搜索引擎优化
+# SEO configuration
 enableRobotsTXT: true
 buildDrafts: false
 buildFuture: false
 buildExpired: false
 
-# 性能优化
+# Performance optimization
 minify:
   disableXML: true
   minifyOutput: true
 
-# 启用 JSON 输出（用于搜索功能）
+# Enable JSON output (for search)
 outputs:
   home:
     - HTML
     - RSS
     - JSON
 
-# PaperMod 主题配置
+# Language configuration
+defaultContentLanguage: zh
+languages:
+  zh:
+    weight: 1
+    languageCode: zh-CN
+    languageName: 中文
+    menus:
+      main:
+        - name: Home
+          pageRef: /
+          weight: 10
+        - name: Repo
+          url: https://github.com/hiyouga/LLaMA-Factory
+          weight: 20
+        - name: Blog
+          url: https://github.com/hiyouga/llamafactory-blog
+          weight: 30
+  en:
+    weight: 2
+    languageCode: en-US
+    languageName: English
+    menus:
+      main:
+        - name: Home
+          pageRef: /
+          weight: 10
+        - name: Repo
+          url: https://github.com/hiyouga/LLaMA-Factory
+          weight: 20
+        - name: Blog
+          url: https://github.com/hiyouga/llamafactory-blog
+          weight: 30
+
+# PaperMod theme configuration
 params:
   env: production
   title: LlamaFactory Blog
@@ -43,23 +77,23 @@ params:
   showRssButtonInSectionTermList: true
   useHugoToc: true
 
-  # 主页信息卡片
+  # Home page info card
   homeInfoParams:
     Title: LlamaFactory Blog
     Content: 查看 LlamaFactory 的最新动态
 
-  # 社交图标
+  # Social icons
   socialIcons:
     - name: github
       url: "https://github.com/hiyouga/LLaMA-Factory"
 
-  # 编辑文章链接
+  # Edit post link
   editPost:
     URL: "https://github.com/hiyouga/llamafactory-blog/edit/main/content"
     Text: "编辑此文章"
     appendFilePath: true
 
-  # 搜索配置
+  # Search configuration
   fuseOpts:
     isCaseSensitive: false
     shouldSort: true
@@ -70,35 +104,27 @@ params:
     limit: 10
     keys: ["title", "permalink", "summary", "content"]
 
-  # 网站图标
+  # Website icons
   assets:
     favicon: "/favicon.ico"
     favicon16x16: "/favicon-16x16.png"
     favicon32x32: "/favicon-32x32.png"
     apple_touch_icon: "/apple-touch-icon.png"
 
-# 菜单配置
-menu:
+# Menu configuration
+menus:
   main:
-    - name: 首页
+    - name: Home
       url: /
       weight: 10
-    # - identifier: categories
-    #   name: 分类
-    #   url: /categories/
-    #   weight: 15
-    # - identifier: tags
-    #   name: 标签
-    #   url: /tags/
-    #   weight: 20
-    - name: 归档
-      url: /archives/
-      weight: 25
-    # - name: 搜索
-    #   url: /search/
-    #   weight: 30
+    - name: Repo
+      url: https://github.com/hiyouga/LLaMA-Factory
+      weight: 20
+    - name: Blog
+      url: https://github.com/hiyouga/llamafactory-blog
+      weight: 30
 
-# 代码高亮配置
+# Code highlighting configuration
 pygmentsUseClasses: true
 markup:
   highlight:

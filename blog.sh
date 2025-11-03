@@ -67,6 +67,14 @@ check_environment() {
         exit 1
     fi
 
+    # Check branch
+    if [ "$(git branch --show-current)" != "main" ]; then
+        echo -e "${RED}Error: Please switch to 'main' branch${NC}"
+        echo -e "${YELLOW_B}Current branch: $(git branch --show-current)${NC}"
+        echo -e "${YELLOW_B}Please switch to 'main': git checkout main${NC}"
+        exit 1
+    fi
+
     # Check remote repository
     if ! git remote get-url origin &> /dev/null; then
         echo -e "${RED}Error: No remote repository configured${NC}"
@@ -140,6 +148,13 @@ deploy_site() {
     check_environment
 
     echo -e "${YELLOW_B}Publishing site to GitHub Pages...${NC}"
+
+    # Pull latest changes from remote
+    echo -e "${YELLOW_B}Pulling latest changes from remote...${NC}"
+    if ! git pull origin main; then
+        echo -e "${RED}Pull failed! Please resolve conflicts and try again.${NC}"
+        exit 1
+    fi
 
     # Check for uncommitted changes
     if [ -n "$(git status --porcelain)" ]; then

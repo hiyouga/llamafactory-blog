@@ -67,6 +67,14 @@ check_environment() {
         exit 1
     fi
 
+    # 检查分支
+    if [ "$(git branch --show-current)" != "main" ]; then
+        echo -e "${RED}错误: 请切换到 'main' 分支${NC}"
+        echo -e "${YELLOW_B}当前分支: $(git branch --show-current)${NC}"
+        echo -e "${YELLOW_B}请切换到 'main': git checkout main${NC}"
+        exit 1
+    fi
+
     # 检查远程仓库
     if ! git remote get-url origin &> /dev/null; then
         echo -e "${RED}错误: 未配置远程仓库${NC}"
@@ -140,6 +148,13 @@ deploy_site() {
     check_environment
 
     echo -e "${YELLOW_B}正在发布到 GitHub Pages...${NC}"
+
+    # 拉取最新更改
+    echo -e "${YELLOW_B}正在拉取最新更改...${NC}"
+    if ! git pull origin main; then
+        echo -e "${RED}拉取失败！请解决冲突并尝试再次发布。${NC}"
+        exit 1
+    fi
 
     # 检查是否有未提交的更改
     if [ -n "$(git status --porcelain)" ]; then
