@@ -145,11 +145,11 @@ deploy_site() {
     if [ -n "$(git status --porcelain)" ]; then
         echo -e "${YELLOW_B}检测到未提交的更改，正在提交...${NC}"
         git add .
-        git commit -m "feat: Publish site $(date '+%Y-%m-%d %H:%M:%S')"
+        git commit -m "[feat] Publish site $(date '+%Y-%m-%d %H:%M:%S')"
     fi
 
     # 生成随机分支名
-    RANDOM_BRANCH="random-$(date +%s)-$RANDOM"
+    RANDOM_BRANCH="tmp-$(date +%s)-$RANDOM"
     echo -e "${YELLOW_B}创建随机分支: ${RANDOM_BRANCH}${NC}"
 
     # 检查当前分支状态
@@ -183,6 +183,11 @@ deploy_site() {
         echo -e "${RED}发布失败！${NC}"
         exit 1
     fi
+
+    # 清理临时分支
+    echo -e "${YELLOW_B}清理临时分支: ${RANDOM_BRANCH}${NC}"
+    git checkout main && git pull origin main
+    git branch -D "$RANDOM_BRANCH" 2>/dev/null
 }
 
 # 交互式菜单
