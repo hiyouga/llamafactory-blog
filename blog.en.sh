@@ -116,7 +116,7 @@ new_post() {
 
     if [ -z "$1" ]; then
         echo -e "${RED}Error: Please specify the post path${NC}"
-        echo -e "${YELLOW_B}Usage: $0 new <filename>.md${NC}"
+        echo -e "${YELLOW_B}Usage: $0 new <filename>.<lang>.md${NC}"
         exit 1
     fi
 
@@ -220,7 +220,7 @@ interactive_menu() {
                 break
                 ;;
             2)
-                echo -e "${YELLOW_B}Please enter the file name (e.g., my-post.md): ${NC}"
+                echo -e "${YELLOW_B}Please enter the file name (e.g., my-post.en.md): ${NC}"
                 read -r post_path
                 if [ -n "$post_path" ]; then
                     echo -e "${GREEN}Creating new post: $post_path${NC}"

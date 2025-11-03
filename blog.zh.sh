@@ -116,7 +116,7 @@ new_post() {
 
     if [ -z "$1" ]; then
         echo -e "${RED}错误: 请指定文章路径${NC}"
-        echo -e "${YELLOW_B}用法: $0 new <文件名>.md${NC}"
+        echo -e "${YELLOW_B}用法: $0 new <文件名>.<语言>.md${NC}"
         exit 1
     fi
 
@@ -220,7 +220,7 @@ interactive_menu() {
                 break
                 ;;
             2)
-                echo -e "${YELLOW_B}请输入文章路径 (例如: 我的文章.md): ${NC}"
+                echo -e "${YELLOW_B}请输入文章路径 (例如: 我的文章.zh.md): ${NC}"
                 read -r post_path
                 if [ -n "$post_path" ]; then
                     echo -e "${GREEN}创建新文章: $post_path${NC}"
