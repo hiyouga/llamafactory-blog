@@ -1,17 +1,20 @@
 ---
 date: '2025-10-21T16:21:12+08:00'
 draft: false
-title: 'Megatron Full Finetune with LLaMaFactory'
-author: 'LLaMaFactory Team'
+title: 'Megatron-Core Fine-Tuning with LLaMA-Factory'
+author: 'LLaMA-Factory Team'
 ---
-# LLaMaFactory✖️Mcore Adapter
-为充分利用 megatron-core 的并行技术与 GroupGEMM，我们将 [**ROLL 团队**](https://github.com/alibaba/ROLL) 提供的 mcore_adapter 与 LLaMaFactory 的数据链路及 megatron-trainer 的训练后端相结合，构建了一个新的模型训练工作流。
 
+# LLaMA-Factory 🤝 MCoreAdapter
+
+为充分利用 Megatron-core 的并行技术并提高 MoE 模型的训练效率，我们将 [**ROLL 团队**](https://github.com/alibaba/ROLL/tree/main/mcore_adapter) 提供的 MCoreAdapter 与 LLaMA-Factory 的数据链路及 Megatron Trainer 的训练后端相结合，构建了一个新的模型训练工作流。
 
 ## 🚀 快速开始
 
 ### 1. 💻 环境安装
-> 📦 pip
+
+#### 📦 pip
+
 ```bash
 # for megatron-core
 pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cu124
@@ -34,12 +37,15 @@ git clone --depth 1 https://github.com/hiyouga/LLaMA-Factory.git
 cd LLaMA-Factory
 pip install -e ".[torch,metrics]" --no-build-isolation
 ```
-> 🐳 docker(推荐)
 
-参考[dockerfile](https://github.com/Kuangdd01/LLaMA-Factory-X/blob/1cef3e5f3d06146442c60bedbb88af529f174512/docker/docker-cuda/Dockerfile.megatron)进行构建
+#### 🐳 docker (推荐)
+
+参考 [Dockerfile](https://github.com/hiyouga/LLaMA-Factory/blob/main/docker/docker-cuda/Dockerfile.megatron) 进行构建。
 
 ### 2. 🎯 启动实验
-> 🖥️ 单机八卡(80gb)
+
+#### 🖥️ 单机 8*80GB
+
 ```bash
 cd LLaMA-Factory
 # qwen2_vl_full
@@ -47,7 +53,9 @@ USE_MCA=1 llamafactory-cli train examples/megatron/qwen2_vl_full.yaml
 # qwen3_moe_full
 USE_MCA=1 llamafactory-cli train examples/megatron/qwen3_moe_full.yaml
 ```
-> 🌐 多机实验
+
+#### 🌐 多机 16*80GB
+
 ```bash
 export DISTRIBUTED_ARGS="
     --nproc_per_node 8 \
@@ -57,11 +65,11 @@ export DISTRIBUTED_ARGS="
     --master_port $MASTER_PORT
 "
 USE_MCA=1 torchrun $DISTRIBUTED_ARGS src/train.py \
-    --model_name_or_path ../model/qwen3_30b_a3b \
+    --model_name_or_path Qwen/Qwen3-30B-A3B-Instruct-2507 \
     --do_train \
     --stage sft \
     --finetuning_type full \
-    --dataset identity \
+    --dataset identity,alpaca_en_demo \
     --preprocessing_num_workers 16 \
     --cutoff_len 4096 \
     --template qwen3_nothink \
@@ -87,11 +95,15 @@ USE_MCA=1 torchrun $DISTRIBUTED_ARGS src/train.py \
     --expert_model_parallel_size 4 \
     --recompute_granularity full
 ```
-> 📊 基准测试
-> 
-我们为多模态模型与文本 MOE 模型各提供了一组实验，详情请见 [GitHub 评论](https://github.com/hiyouga/LLaMA-Factory/pull/9237#issue-3492236945) 🔗
+
+#### 📊 基准测试
+
+我们为多模态模型与文本 MOE 模型各提供了一组实验，详情请见 [GitHub 评论](https://github.com/hiyouga/LLaMA-Factory/pull/9237#issue-3492236945)。
+
 #### 🔄 权重转换(mcore2hf)
-我们需要通过权重转换脚本将训练存储下来的mcore类型的训练权重合并为huggingface命名类型的safetensors。
+
+我们需要通过权重转换脚本将训练存储下来的 Mcore 类型的训练权重合并为 Hugging Face 命名类型的 Safetensors。
+
 ```bash
 python scripts/megatron_merge.py \
     --checkpoint_path saves/mca/qwen3_moe_full_id/checkpoint-50/ \
@@ -102,9 +114,12 @@ python scripts/megatron_merge.py \
 ### 3. 💡 Tips & 注意事项
 
 #### 3.1 📐 Global Batch Size 计算差异
+
 在使用 Megatron 训练时，注意 global batch size 的计算相较于之前的设置有细微区别：
 
-**📌 参数说明：**
+** 📌 参数说明：**
+
+- `bs`: per_device_train_batch_size (每个设备的训练批量大小)
 - `ga`: gradient_accumulation_steps (梯度累积步数)
 - `ws`: WORLD_SIZE (总进程数)
 - `pp`: pipeline_model_parallel_size (流水线并行大小)
@@ -112,21 +127,24 @@ python scripts/megatron_merge.py \
 - `ep`: expert_model_parallel_size (专家并行大小)
 
 **🔢 计算公式对比：**
+
 ```bash
 # 原始计算方式
-origin_global_batch_size = ws * batchsize_per_device * ga
+fsdp_global_batch_size = ws * bs * ga
 
 # MCA 计算方式
-mca_global_batch_size = (ws // pp // tp // ep) * batchsize_per_device * ga 
+mca_global_batch_size = (ws // pp // tp // ep) * bs * ga 
 ```
 
 #### 3.2 ⚡ 性能优化建议
-- **💾 内存优化**: 启用 `--use_distributed_optimizer` 和 `--overlap_param_gather` 可以显著减少内存使用
+
+- **💾 显存优化**: 启用 `--use_distributed_optimizer` 和 `--overlap_param_gather` 可以显著减少显存使用
 - **📡 通信优化**: 使用 `--overlap_grad_reduce` 可以重叠梯度通信和计算
-- **🔧 MOE 优化**: 对于 MOE 模型，建议使用 `--moe_token_dispatcher_type alltoall` 和 `--moe_grouped_gemm true` 获得更好的性能
-- **⚙️ 并行优化**: `gradient_accumulation_steps` 为 PP 的整数倍
+- **🔧 MoE 优化**: 对于 MoE 模型，建议使用 `--moe_token_dispatcher_type alltoall` 和 `--moe_grouped_gemm true` 获得更好的性能
+- **⚙️ 并行优化**: 设置 `gradient_accumulation_steps` 为 PP 的整数倍
 
 #### 3.3 🔍 常见问题排查
+
 1. **💥 OOM 错误**: 减少 `per_device_train_batch_size` 或增加 `gradient_accumulation_steps`
 2. **🌐 通信超时**: 检查网络连接和 `master_addr`、`master_port` 设置
 3. **⚙️ 并行度设置**: 确保 `pp * tp * ep` 能整除 `ws`
