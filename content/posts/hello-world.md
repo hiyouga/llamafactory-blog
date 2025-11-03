@@ -1,6 +1,6 @@
 ---
 date: '2025-10-20T22:21:47+08:00'
-draft: false
+draft: true
 title: 'LlamaFactory Blog 项目介绍'
 description: '基于 Hugo + PaperMod 的现代化博客系统，支持一键部署到 GitHub Pages'
 tags: ['博客', 'Hugo', 'PaperMod', 'GitHub Pages']
