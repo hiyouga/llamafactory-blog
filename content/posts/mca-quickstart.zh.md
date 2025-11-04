@@ -161,8 +161,6 @@ python scripts/megatron_merge.py \
 - **`overlap_grad_reduce`**：在分布式优化器中将梯度归约与反向计算重叠。
   - *建议*：在使用 `use_distributed_optimizer: true` 时启用，以提升吞吐  
 
----
-
 ### 4. 💡 技巧与注意事项
 
 #### 4.1 📐 全局批大小的计算差异
@@ -203,8 +201,6 @@ mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga
 # 全局批大小 = 1 * 4 * 2 = 8
 ```
 
----
-
 #### 4.2 ⚡ 性能优化
 
 - **💾 GPU 显存优化**：启用 `--use_distributed_optimizer` 和 `--overlap_param_gather` 可显著降低显存占用  
@@ -212,8 +208,6 @@ mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga
 - **🔧 MoE 优化**：MoE 模型优先选择 `--moe_token_dispatcher_type alltoall` 和 `--moe_grouped_gemm true`  
 - **⚙️ 并行优化**：将 `gradient_accumulation_steps` 设为 PP 的整数倍  
 - **📏 长上下文优化**：当训练超长序列（>32k tokens）时，启用 `context_parallel_size`（通常 2-4）分布序列计算，减少显存压力  
-
----
 
 #### 4.3 🔍 故障排查
 
