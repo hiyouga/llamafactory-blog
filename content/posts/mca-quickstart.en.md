@@ -111,13 +111,63 @@ python scripts/megatron_merge.py \
     --bf16
 ```
 
-### 3. 💡 Tips & Precautions
+### 3. ⚙️ Megatron Strategy Configuration
 
-#### 3.1 📐 Global Batch Size calculation differences
+Understanding Megatron's parallelism and optimization parameters is crucial for efficient training. Here's a detailed explanation of key configuration options:
+
+#### 3.1 🔀 Parallelism Strategy
+
+- **`tensor_model_parallel_size` (TP)**: Splits individual weight matrices across GPUs. Useful for very large models that don't fit on a single GPU. Increases communication overhead, so use moderately (typically 2-8).
+  - *Recommendation*: Start with 1, increase only if model doesn't fit in memory
+
+- **`pipeline_model_parallel_size` (PP)**: Divides model layers across GPUs in a pipeline fashion. Reduces memory per GPU but may cause pipeline bubbles.
+  - *Recommendation*: Use powers of 2 (2, 4, 8); set `gradient_accumulation_steps` as a multiple of PP to minimize bubbles
+
+- **`expert_model_parallel_size` (EP)**: Distributes MoE experts across GPUs. Essential for large MoE models.
+  - *Recommendation*: For MoE models, typically set to 2-8 depending on expert count
+
+- **`context_parallel_size` (CP)**: Splits sequence dimension for very long contexts. Useful when training with context length > 32k.
+  - *Recommendation*: Use for ultra-long sequences; typically 1, 2, or 4
+
+- **`virtual_pipeline_model_parallel_size` (VPP)**: Creates virtual pipeline stages to reduce pipeline bubbles by interleaving forward/backward passes.
+  - *Recommendation*: Set to 2-4 when using PP to improve efficiency
+
+- **`sequence_parallel`**: Distributes sequence-level computations (LayerNorm, Dropout) across TP group. Reduces memory when TP > 1.
+  - *Recommendation*: Enable when `tensor_model_parallel_size > 1`
+
+#### 3.2 💾 Memory Optimization
+
+- **`recompute_granularity`**: Trades computation for memory by recomputing activations during backward pass.
+  - `full`: Recomputes entire transformer layer (maximum memory saving)
+  - `selective`: Recomputes only attention (balanced trade-off)
+  - *Recommendation*: Use `selective` first; switch to `full` if still OOM
+
+- **`moe_layer_recompute`**: Checkpoints MoE layers to save activation memory for MoE models.
+  - *Recommendation*: Enable for large MoE models when memory is tight
+
+#### 3.3 🚀 Performance Optimization
+
+- **`moe_token_dispatcher_type`**: Determines how tokens are routed to experts.
+  - `alltoall`: Better performance for most cases (recommended)
+  - `allgather`: Alternative for specific network topologies
+  - *Recommendation*: Use `alltoall` for better throughput
+
+- **`moe_grouped_gemm`**: Groups expert computations for better GPU utilization.
+  - *Recommendation*: Always enable (`true`) for MoE models
+
+- **`moe_shared_expert_overlap`**: Overlaps shared expert computation with communication.
+  - *Recommendation*: Enable to hide communication latency in MoE models
+
+- **`overlap_grad_reduce`**: Overlaps gradient reduce-scatter with backward computation in distributed optimizer.
+  - *Recommendation*: Enable when using `use_distributed_optimizer: true` for better throughput
+
+### 4. 💡 Tips & Precautions
+
+#### 4.1 📐 Global Batch Size calculation differences
 
 While using Megatron for training, note the subtle difference in how global batch size is calculated compared to previous setups:
 
-** 📌 Parameter definitions: **
+**📌 Parameter definitions:**
 
 - `bs`: per_device_train_batch_size
 - `ga`: gradient_accumulation_steps
@@ -125,6 +175,7 @@ While using Megatron for training, note the subtle difference in how global batc
 - `pp`: pipeline_model_parallel_size
 - `tp`: tensor_model_parallel_size
 - `ep`: expert_model_parallel_size
+- `cp`: context_parallel_size
 
 **🔢 Formula comparison:**
 
@@ -133,18 +184,35 @@ While using Megatron for training, note the subtle difference in how global batc
 fsdp_global_batch_size = ws * bs * ga
 
 # MCA calculation
-mca_global_batch_size = (ws // pp // tp // ep) * bs * ga 
+mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga 
 ```
 
-#### 3.2 ⚡ Performance optimization
+**💡 Understanding the difference:**
+
+The key insight is that Megatron's parallelism strategies (PP, TP, EP, CP) partition the available GPUs, so the effective data parallel size is reduced by these factors. Only the remaining GPUs contribute to data parallelism, which directly affects the global batch size.
+
+**📊 Example:**
+```bash
+# Setup: 16 GPUs, PP=2, TP=2, EP=2, CP=1, bs=4, ga=2
+# Data parallel size = 16 // 2 // 2 // 2 // 1 = 2
+# Global batch size = 2 * 4 * 2 = 16
+
+# If you add CP=2 for long context:
+# Data parallel size = 16 // 2 // 2 // 2 // 2 = 1
+# Global batch size = 1 * 4 * 2 = 8 (halved!)
+```
+
+#### 4.2 ⚡ Performance optimization
 
 - **💾 GPU memory optimization**: enable `--use_distributed_optimizer` and `--overlap_param_gather` would significantly reduce GPU memory usage
 - **📡 Communication optimization**: use `--overlap_grad_reduce` to overlap gradient communication with computation
 - **🔧 MoE optimization**: For MoE models, prefer `--moe_token_dispatcher_type alltoall` and `--moe_grouped_gemm true` for better performance
 - **⚙️ Parallel optimization**: set `gradient_accumulation_steps` to be an integer multiple of PP
+- **📏 Long context optimization**: enable `context_parallel_size` (typically 2-4) when training with very long sequences (>32k tokens) to distribute sequence computation and reduce memory pressure
 
-#### 3.3 🔍 Troubleshooting
+#### 4.3 🔍 Troubleshooting
 
-1. **💥 OOM Errors**: reduce `per_device_train_batch_size` or `gradient_accumulation_steps`
-2. **🌐 Communication timeouts**: check network connectivity, `master_addr` and `master_port`
-3. **⚙️ Parallel settings**: ensure `pp * tp * ep` divides `ws` evenly
+- **💥 OOM Errors**: reduce `per_device_train_batch_size` or `gradient_accumulation_steps`, or enable context parallelism for long sequences and check whether the `use_distributed_optimizer` is enabled.
+- **🌐 Communication timeouts**: check network connectivity, `master_addr` and `master_port`
+- **⚙️ Parallel settings**: ensure `pp * tp * ep * cp` divides `ws` evenly
+- **📉 Small global batch size**: if your global batch size becomes too small due to high parallelism (PP/TP/EP/CP), consider increasing `gradient_accumulation_steps` or reducing parallelism degrees where possible
