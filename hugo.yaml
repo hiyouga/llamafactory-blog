@@ -34,15 +34,18 @@ languages:
     languageName: 中文
     menus:
       main:
-        - name: Home
+        - name: 首页
           pageRef: /
           weight: 10
-        - name: Repo
+        - name: 开源项目
           url: https://github.com/hiyouga/LLaMA-Factory
           weight: 20
-        - name: Blog
+        - name: 博客
           url: https://github.com/hiyouga/llamafactory-blog
           weight: 30
+        - name: 社区
+          url: https://github.com/hiyouga/llamafactory-community
+          weight: 40
   en:
     weight: 2
     languageCode: en-US
@@ -58,6 +61,9 @@ languages:
         - name: Blog
           url: https://github.com/hiyouga/llamafactory-blog
           weight: 30
+        - name: Community
+          url: https://github.com/hiyouga/llamafactory-community
+          weight: 40
 
 # PaperMod theme configuration
 params:
@@ -80,17 +86,17 @@ params:
   # Home page info card
   homeInfoParams:
     Title: LlamaFactory Blog
-    Content: 查看 LlamaFactory 的最新动态
+    # Content: 查看 LlamaFactory 的最新动态
 
   # Social icons
-  socialIcons:
-    - name: github
-      url: "https://github.com/hiyouga/LLaMA-Factory"
+  # socialIcons:
+  #   - name: github
+  #     url: "https://github.com/hiyouga/LLaMA-Factory"
 
   # Edit post link
   editPost:
     URL: "https://github.com/hiyouga/llamafactory-blog/edit/main/content"
-    Text: "编辑此文章"
+    Text: "Edit this post"
     appendFilePath: true
 
   # Search configuration
@@ -123,6 +129,9 @@ menus:
     - name: Blog
       url: https://github.com/hiyouga/llamafactory-blog
       weight: 30
+    - name: Community
+      url: https://github.com/hiyouga/llamafactory-community
+      weight: 40
 
 # Code highlighting configuration
 pygmentsUseClasses: true
