@@ -4,6 +4,8 @@ draft: true
 title: 'Easy Dataset × LLaMA Factory: Empowering Large Models with Efficient Domain Knowledge Learning'
 ---
 
+# Easy Dataset × LLaMA Factory: Empowering Large Models with Efficient Domain Knowledge Learning
+
 ## 1 Introduction
 
 [Easy Dataset](https://github.com/ConardLi/easy-dataset?utm_source=chatgpt.com) is an application designed specifically for creating fine-tuning datasets for large language models (LLMs). It provides an intuitive interface for uploading domain-specific documents, intelligently segmenting content, generating questions, and producing high-quality training data for model fine-tuning. It supports calling large models through APIs such as OpenAI, DeepSeek, Volcano Engine, as well as local models via Ollama.
@@ -123,67 +125,67 @@ All data are in plain text format. Below is a sample excerpt.
 
 1.After opening the Easy Dataset homepage in your browser, click **Create Project**.
 
-![image-20251201154419126](https://github.com/user-attachments/assets/0583d740-6cc2-4ca5-ad9c-2ec96b1ea1e8)
+![image-20251201154419126](https://github.com/user-attachments/assets/baf62040-0e0b-42d7-a18b-43fe66da920a)
 
 2.First, enter the **Project Name** (required). The other two fields can be left blank. Then click **Create Project** to confirm.
 
-<img src="./assets/image-20251201154608375.png" alt="image-20251201154608375" style="zoom:33%;" />
+![image-0001](https://github.com/user-attachments/assets/9e2b17f2-6779-4346-9ed0-cfb9b50ab6ca)
 
 3.After the project is created, you will be redirected to the **Project Settings** page. Open **Model Configuration** and select the large model API to be used for data generation.
 
-![image-20251201154717628](https://github.com/user-attachments/assets/8e63a92a-c908-45f0-8c2c-292bb3444de1)
+![image-20251201154717628](https://github.com/user-attachments/assets/6e8cb11c-4a81-4c0a-a47a-244ea01093b1)
 
 4.Here, we use the DeepSeek model as an example. Enter the model **Provider** and **Model Name**, and provide the **API Key**. Click **Save** to store the data locally. Then, select the configured model from the top-right corner. The **API Key** must be obtained from the model provider and must be valid for accessing the provider’s large model.
 
-<img src="./assets/image-20251201154858929.png" alt="image-20251201154858929" style="zoom:33%;" />
+![image-34244445](https://github.com/user-attachments/assets/8c8da760-aaa5-49ae-aaae-db72e5ff45ee)
 
 5.Open the **Task Configuration** page and set the text segmentation length to a minimum of 500 characters and a maximum of 2000 characters. In the question generation settings, change it to generate one question per 10 characters. After making the changes, click **Save Task Configuration** at the bottom of the page.
 
-<img src="./assets/image-20251201155138349.png" alt="image-20251201155138349" style="zoom:33%;" />
+![image-08728377](https://github.com/user-attachments/assets/adcae63f-cd7d-45e9-ac3f-397bc710a688)
 
 #### **Process Data Files**
 
 1.Open the **Document Processing** page and select a model.
 
-<img src="./assets/image-20251201155357902.png" alt="image-20251201155357902" style="zoom:33%;" />
+![image-986387](https://github.com/user-attachments/assets/b5fb6270-290d-4ac5-9ff9-eb0ba3881992)
 
-<img src="./assets/image-20251201155422563.png" alt="image-20251201155422563" style="zoom:33%;" />
+![image-86668](https://github.com/user-attachments/assets/fd95b8f3-58be-4909-ba41-44de2e99e01d)
 
 2.After selecting the files, click **Upload and Process Files**.
 
-<img src="./assets/image-20251201155541379.png" alt="image-20251201155541379" style="zoom:33%;" />
+![image-987976](https://github.com/user-attachments/assets/06cb119d-42e8-4172-a4ad-b3e6ad65e114)
 
 3.After uploading, the large model will be used to parse the file content and segment it. Please wait patiently for the processing to complete. Sample data usually takes around 2 minutes.
 
-<img src="./assets/image-20251201155644627.png" alt="image-20251201155644627" style="zoom:33%;" />
+![image-09173](https://github.com/user-attachments/assets/b620527e-53f9-4eb0-9ba8-edfeae60b320)
 
 #### **Generate Fine-Tuning Data**
 
 1.Once the file processing is complete, you can see the text segments after splitting. Select all the text segments and click **Auto Generate**.
 
-![image-20251201160011221](https://github.com/user-attachments/assets/b49ff8ca-c275-433d-a708-b0f59d26717d)
+![image-20251201160011221](https://github.com/user-attachments/assets/3d4a510f-1003-4427-8c87-4fa652abb9f2)
 
 2.After clicking, the large model will be used to generate questions based on the text segments. Please wait patiently for the process to complete. Depending on the API speed, it usually takes around 2 minutes.
 
-![image-20251201160154221](https://github.com/user-attachments/assets/98a3e992-d604-4487-b664-a2e22ea05b0b)
+![image-20251201160154221](https://github.com/user-attachments/assets/e7d1ee9b-e4a2-4b43-8c34-12543231506e)
 
 #### **Export Dataset to LLaMA Factory**
 
 1.After all answers have been generated, open the **Dataset Management** page and click **Export Dataset**.
 
-![image-20251201160342835](https://github.com/user-attachments/assets/c160b70b-2c78-4a4c-a3b5-23d335ef2f76)
+![image-20251201160342835](https://github.com/user-attachments/assets/4c6cf6c4-4d96-4e8e-886a-a02ae7273a2e)
 
 You can see the task in progress in the background. Wait approximately 2 minutes for it to complete.
 
-![image-20251201160436716](https://github.com/user-attachments/assets/4f3a96ec-dfc7-41b4-8983-b35185941519)
+![image-20251201160436716](https://github.com/user-attachments/assets/bf3474f4-66d4-44f7-a244-6432f2a3b00f)
 
 2.Export the Dataset on the Single-Turn QA Dataset Page
 
-![image-20251201160857619](https://github.com/user-attachments/assets/590195a7-9243-4316-af68-eb089121a343)
+![image-20251201160857619](https://github.com/user-attachments/assets/e9dec884-63ce-406d-a417-c43d8e0377f7)
 
 3.In the export configuration, select **Use in LLaMA Factory**, then click **Update LLaMA Factory Configuration**. This will generate a configuration file in the corresponding folder. Click the **Copy** button to copy the configuration path to the clipboard.
 
-<img src="./assets/image-20251201161017315.png" alt="image-20251201161017315" style="zoom:33%;" />
+![image-971397](https://github.com/user-attachments/assets/67448a9f-b8c3-4985-8a08-2909b0391be4)
 
 4.In the folder corresponding to the configuration file path, you can find the generated data files. The main files to focus on are:
 
@@ -193,7 +195,7 @@ c. **sharegpt.json**: The dataset file organized in ShareGPT format
 
 Both the Alpaca and ShareGPT formats can be used for fine-tuning, and the contents of the two files are identical.
 
-<img src="./assets/image-20251201145409486.png" alt="image-20251201145409486" style="zoom:50%;" />
+![image-1838818](https://github.com/user-attachments/assets/50f0d718-8b72-4ba8-b40d-181c37a359be)
 
 ## 4 Fine-Tune the Qwen2.5-3B-Instruct Model Using LLaMA Factory
 
@@ -239,31 +241,31 @@ Environment variable explanation:
 After successful startup, the following information will appear in the console.
  Open **http://localhost:7860** in your browser to access the Web UI.
 
-![image-20251201162731159](https://github.com/user-attachments/assets/e7656123-4c55-4319-8596-e8d65806be88)
+![image-20251201162731159](https://github.com/user-attachments/assets/85c8a3cf-0057-409f-983e-1adeda53d305)
 
 2.After entering the Web UI interface, select the model **Qwen2.5-3B-Instruct**. You can specify the local absolute path for the model. If left blank, it will be downloaded from the internet.
 
-![image-20251201193549815](https://github.com/user-attachments/assets/e5b17948-dfb8-4092-952e-c9d340458582)
+![image-20251201193549815](https://github.com/user-attachments/assets/3589db0f-4a08-4c5c-833b-9f635b6686d8)
 
 3.Set the **dataset path** to the configuration path exported by **Easy Dataset**, and select the **Alpaca** format dataset.
 
-![image-20251201194656868](https://github.com/user-attachments/assets/ebcd6781-f7f1-44a3-9b6a-cf13e9dc278f)
+![image-20251201194656868](https://github.com/user-attachments/assets/40dd4be6-78bd-4924-b097-4fc15a400b27)
 
 4.To help the model learn the dataset more effectively, set the **learning rate** to **1e-4** and increase the **number of training epochs** to **8**. The batch size and gradient accumulation should be adjusted according to the available GPU memory. If memory allows, increasing the batch size can speed up training. In general, ensure that **Batch Size × Gradient Accumulation × Number of GPUs = 32**.
 
-![image-20251201194825884](https://github.com/user-attachments/assets/4c0e0ba3-df54-4fb5-be99-e3062ea39d4e)
+![image-20251201194825884](https://github.com/user-attachments/assets/be99e73c-e892-4e79-b0c6-cd03d3c453bb)
 
 5.Click on **Other Parameters**, and set the **save interval** to 50. Saving more checkpoints helps observe how the model’s performance changes over training epochs.
 
-![image-20251201194941036](https://github.com/user-attachments/assets/37baf7a7-0f8a-443c-84d7-734ab6b83df3)
+![image-20251201194941036](https://github.com/user-attachments/assets/25099eff-d560-40fd-93b5-3c6b7077526f)
 
 6.Click **LoRA Parameter Settings**, set the **LoRA rank** to 16, and set the **LoRA scaling factor** to 32.
 
-![image-20251201195017902](https://github.com/user-attachments/assets/1d1c6ec6-463c-4540-ab0b-14df3ec068b2)
+![image-20251201195017902](https://github.com/user-attachments/assets/6b6017a3-05ca-4c98-b4da-dd4f0b50b52b)
 
 7.Click the **Start** button, wait for the model to download, and after some time you should be able to observe the loss curve during training.
 
-![image-20251201195713189](https://github.com/user-attachments/assets/ef39ba95-08cb-4ec5-b817-b206ac6b12d0)
+![image-20251201195713189](https://github.com/user-attachments/assets/315c7d9b-947f-449b-ae68-895b88e1bd16)
 
 8.Wait for the model training to complete. Depending on GPU performance, the training time may range from 20 to 60 minutes.
 
@@ -271,19 +273,19 @@ After successful startup, the following information will appear in the console.
 
 1.Select the **Checkpoint Path** as the output directory from earlier, open the **Chat** page, and click **Load Model**.
 
-![image-20251201200151409](https://github.com/user-attachments/assets/254ef658-5121-49b1-b2df-4bd09058e502)
+![image-20251201200151409](https://github.com/user-attachments/assets/ec2d71ef-dad4-4c07-8cd0-9a291e38dc11)
 
 2.Enter your question in the chat box below and click **Submit** to interact with the model. Comparing with the original data, the fine-tuned model provides correct answers.
 
-![image-20251201200339699](https://github.com/user-attachments/assets/989eee65-0974-4da3-9b59-2fc99ecd7a52)
+![image-20251201200339699](https://github.com/user-attachments/assets/4ac3529c-e9dd-46e1-ba6a-fe598e18e42e)
 
 3.Click **Unload Model** to unload the fine-tuned model. Clear the **Checkpoint Path** and click **Load Model** to load the original pre-trained model.
 
-![image-20251201200424199](https://github.com/user-attachments/assets/96d3d319-e0f4-4aca-bbc0-940dcd902db9)
+![image-20251201200424199](https://github.com/user-attachments/assets/38c11e8c-360a-469d-ad7f-cc39604592dc)
 
 4.Enter the same question and interact with the model. You will find that the original model answers incorrectly, which demonstrates that the fine-tuning was effective.
 
-![image(10)](https://github.com/user-attachments/assets/976c7c85-f67b-4c3f-bf8d-f3fe05be7e7c)The fine-tuning effect of the 3B model is relatively limited and is used here only for tutorial demonstration.
+![image(10)](https://github.com/user-attachments/assets/1bad8716-5c40-4caf-9d64-35cfb2f55425)The fine-tuning effect of the 3B model is relatively limited and is used here only for tutorial demonstration.
  For better results, it is recommended to try the 7B or 14B models when sufficient resources are available.
 
 You are welcome to follow the GitHub repository:
