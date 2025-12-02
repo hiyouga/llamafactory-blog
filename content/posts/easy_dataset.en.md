@@ -1,10 +1,8 @@
 ---
-date: '2025-12-01T12:19:53+08:00'
-draft: true
+date: '2025-04-03T21:13:00+08:00'
+draft: false
 title: 'Easy Dataset × LLaMA Factory: Empowering Large Models with Efficient Domain Knowledge Learning'
 ---
-
-# Easy Dataset × LLaMA Factory: Empowering Large Models with Efficient Domain Knowledge Learning
 
 ## 1 Introduction
 

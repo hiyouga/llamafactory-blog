@@ -1,6 +1,6 @@
 ---
-date: '2025-12-01T12:19:30+08:00'
-draft: true
+date: '2025-04-03T21:13:00+08:00'
+draft: false
 title: 'Easy Dataset × LLaMA Factory: 让大模型高效学习领域知识'
 ---
 
