@@ -1,5 +1,5 @@
 ---
-date: '2025-04-03T21:13:00+08:00'
+date: '2025-12-05T21:13:00+08:00'
 draft: false
 title: 'Code Guide for LLaMA Factory Project'
 ---
