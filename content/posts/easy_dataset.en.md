@@ -14,7 +14,7 @@ This tutorial uses Easy Dataset to construct an SFT fine-tuning dataset from the
 
 ## 2 System Requirements
 
-- **GPU Memory:** ≥ 12 GB (you can rent a cloud GPU via [autodl.com](https://www.autodl.com/login?url=%2Fhome))
+- **GPU Memory:** ≥ 12 GB
 - **CUDA Version:** above 11.6
 - **Python Version:** 3.10
 
@@ -99,10 +99,10 @@ If the console shows the following output, it means the application has started 
 
 ### 3.2 Sample Data Download
 
-This tutorial provides a set of financial reports from internet companies as sample data, including the Q2 2024 reports of five domestic internet companies in TXT and Markdown formats. You can download them using Git or by directly visiting the [repository link](https://github.com/llm-factory/FinancialData-SecondQuarter-2024).
+This tutorial provides a set of financial reports from internet companies as sample data, including the Q2 2024 reports of five domestic internet companies in TXT and Markdown formats. You can download them using Git or by directly visiting the [repository link](https://github.com/the-seeds/FinancialData-SecondQuarter-2024).
 
 ```bash
-git clone https://github.com/llm-factory/FinancialData-SecondQuarter-2024.git
+git clone https://github.com/the-seeds/FinancialData-SecondQuarter-2024.git
 ```
 
 All data are in plain text format. Below is a sample excerpt.
