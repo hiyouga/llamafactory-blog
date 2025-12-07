@@ -14,7 +14,7 @@ title: 'Easy Dataset × LLaMA Factory: 让大模型高效学习领域知识'
 
 ## 2 运行环境要求
 
-- GPU 显存：大于等于 12 GB（可使用 [autodl.com](https://www.autodl.com/login?url=%2Fhome) 租用云 GPU）
+- GPU 显存：大于等于 12 GB
 - CUDA 版本：高于 11.6
 - Python 版本：3.10
 
@@ -51,7 +51,7 @@ docker run -d \
     easy-dataset
 ```
 
-{YOUR_LOCAL_DB_PATH} 替换为本地存数据库的目录作为 docker 运行环境下 /app/local-db 的挂载目录，启动后打开网页端 http://localhost:1717 即可使用 UI 界面的 Easy Dataset。
+{YOUR_LOCAL_DB_PATH} 替换为本地存数据库的目录作为 docker 运行环境下 /app/local-db 的挂载目录，启动后打开网页端 [http://localhost:1717](http://localhost:1717/) 即可使用 UI 界面的 Easy Dataset。
 
 #### 方法三：使用 NPM 安装
 
@@ -99,10 +99,10 @@ pnpm start
 
 ### 3.2 示例数据下载
 
-本教程准备了一批互联网公司财报作为示例数据，包含五篇国内互联网公司 2024 年二季度的财报，格式包括 txt 和 markdown。可以使用 git 命令或者直接访问[仓库链接](https://github.com/llm-factory/FinancialData-SecondQuarter-2024)下载。
+本教程准备了一批互联网公司财报作为示例数据，包含五篇国内互联网公司 2024 年二季度的财报，格式包括 txt 和 markdown。可以使用 git 命令或者直接访问[仓库链接](https://github.com/the-seeds/FinancialData-SecondQuarter-2024)下载。
 
 ```Bash
-git clone https://github.com/llm-factory/FinancialData-SecondQuarter-2024.git
+git clone https://github.com/the-seeds/FinancialData-SecondQuarter-2024.git
 ```
 
 数据均为纯文本数据，如下为节选内容示例。
