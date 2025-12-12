@@ -1,3 +1,9 @@
+---
+date: '2025-12-12T21:13:00+08:00'
+draft: false
+title: '在 LLaMA-Factory 上适配新模型'
+---
+
 ## 1 模型适配概述
 
 LLaMA-Factory 提供了一整套模型预训练，微调，推理的框架，如果需要适配新模型，只需要修改少量代码就可以让模型融入 LLaMA-Factory 当中。

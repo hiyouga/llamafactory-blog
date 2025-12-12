@@ -1,3 +1,9 @@
+---
+date: '2025-12-12T21:13:00+08:00'
+draft: false
+title: 'Adapt a new model on LLaMA-Factory'
+---
+
 ## 1 Overview of Model Adaptation
 
 LLaMA-Factory offers a complete framework for model pre-training, fine-tuning, and inference. If it is necessary to adapt a new model, only a small amount of code needs to be modified to integrate the model into LLaMA-Factory.
