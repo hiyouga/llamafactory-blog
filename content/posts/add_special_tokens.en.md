@@ -187,7 +187,7 @@ def _encode(
 
 This function first performs format conversion and then uses the `tokenizer` to convert `elements` into token IDs.
 
-## 3 **Add Special Tokens**
+## 3 **Passing Special Tokens Parameters**
 
 **Adding Special Tokens requires using the `add_special_tokens` interface of the `tokenizer`, as shown below:**
 
@@ -304,7 +304,9 @@ def _parse_args(
 
 `parser: "HfArgumentParser"` parses all arguments defined in `_TRAIN_ARGS` within `parser = HfArgumentParser(_TRAIN_ARGS)`, including `model_args`.
 
-### 3.3 **Example of Adding Special Tokens**
+## 4 **Example of Adding Special Tokens**
+
+### 4.1 Add Special Tokens directly in the YAML file
 
 To add special tokens, you only need to include the `add_special_tokens` parameter in the training configuration file, for example:
 
@@ -315,3 +317,46 @@ trust_remote_code: true
 add_special_tokens: "[start],[end]"
 ...
 ```
+
+### 4.2 Configure the addition of parameters in the new_special_tokens_config file
+
+An independent `new_special_tokens_config.yaml` file is required, for example:
+
+```yaml
+# SVG Container Tags
+"<|START_OF_SVG|>": "Marks the beginning of an SVG document"
+"<|END_OF_SVG|>": "Marks the end of an SVG document"
+
+# SVG Group Tags
+"<|start_of_g|>": "Begins a group element in SVG for organizing related shapes"
+"<|end_of_g|>": "Ends a group element"
+```
+
+In this file, both the special tokens and their corresponding descriptions need to be defined.
+
+```bash
+### model
+model_name_or_path: /home/xiaoxunpeng/workplace/Models/Qwen2.5-3B-Instruct
+trust_remote_code: true
+...
+
+# Training config
+new_special_tokens_config: examples/extras/multi_tokens/tokens_cfg.yaml
+init_special_tokens: desc_init
+...
+
+# Inference config
+skip_special_tokens: false  # Must set to false for structured tokens
+...
+```
+
+`new_special_tokens_config` specifies the path to the `tokens_config.yaml` file, and `init_special_tokens` configures the method for initializing special token embeddings. The `init_special_tokens` option can be set to `desc_init` or `desc_init_w_noise`. Initialization methods that include token descriptions allow the tokenizer to initialize token embeddings based on their descriptions.
+
+
+**Note: Loading special tokens from a file has higher priority than specifying special tokens directly in the configuration file.**
+
+### 4.3 Add via Visual Interface
+
+![image-20251217151544496](https://github.com/user-attachments/assets/5679a55d-f694-415c-8f51-0c0f9b2dbd25)
+
+Under **Extra arguments**, simply add the content that would normally be added in the YAML file.

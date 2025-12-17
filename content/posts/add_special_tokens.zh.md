@@ -1,7 +1,7 @@
 ---
 date: '2025-12-17T14:13:17+08:00'
 draft: true
-title: '添加新的 Special Tokens 训练模型'
+title: '添加 Special Tokens 训练模型'
 ---
 
 ## 1 引言
@@ -186,7 +186,7 @@ def _encode(
 
 这个函数首先完成格式转换，然后使用 `tokenizer` 将 `elements` 转换为 `token ids` 。
 
-## 3 添加 Special Tokens
+## 3 Special Tokens 参数传递
 
 添加 Special Tokens 需要使用 `tokenizer` 的 `add_special_tokens` 接口，如下：
 
@@ -303,7 +303,9 @@ def _parse_args(
 
 `parser: "HfArgumentParser"` 会解析所有 `parser = HfArgumentParser(_TRAIN_ARGS)` 中 `_TRAIN_ARGS` 定义的参数，包括 `model_args` 。
 
-### 3.3 添加 Special Tokens 示例
+### 4 添加 Special Tokens 示例
+
+#### 4.1 直接在 yaml 文件里面添加
 
 添加 special tokens 只需要在训练配置文件里面添加 `add_special_tokens` 参数，例如：
 
@@ -314,3 +316,45 @@ trust_remote_code: true
 add_special_tokens: "[start],[end]"
 ...
 ```
+
+#### 4.2 配置 new_special_tokens_config 文件参数添加
+
+需要一个独立的 new_special_tokens_config.yaml 文件，例如：
+
+```yaml
+# SVG Container Tags
+"<|START_OF_SVG|>": "Marks the beginning of an SVG document"
+"<|END_OF_SVG|>": "Marks the end of an SVG document"
+
+# SVG Group Tags
+"<|start_of_g|>": "Begins a group element in SVG for organizing related shapes"
+"<|end_of_g|>": "Ends a group element"
+```
+
+在这个文件里面需要同时定义 special tokens 和其对应的描述。
+
+```bash
+### model
+model_name_or_path: /home/xiaoxunpeng/workplace/Models/Qwen2.5-3B-Instruct
+trust_remote_code: true
+...
+
+# Training config
+new_special_tokens_config: examples/extras/multi_tokens/tokens_cfg.yaml
+init_special_tokens: desc_init
+...
+
+# Inference config
+skip_special_tokens: false  # Must set to false for structured tokens
+...
+```
+
+`new_special_tokens_config` 指示 tokens_config.yaml 文件路径，`init_special_tokens` 配置 special tokens 初始化 embedding 的方法，`init_special_tokens` 可选 `desc_init` 和 `desc_init_w_noise` 。具备 token 描述的初始化方法可以使 tokenizer 通过 token 描述初始化 token 的 embedding。
+
+**注意：通过文件的形式加载 special tokens 比通过直接在配置文件上指定 special tokens 的优先级更高。**
+
+#### 4.3 可视化界面添加
+
+![image-20251217151544496](https://github.com/user-attachments/assets/5679a55d-f694-415c-8f51-0c0f9b2dbd25)
+
+在 `Extra arguments` 下面添加 原本需要在 yaml 文件下添加的内容即可。
