@@ -6,13 +6,16 @@ title: '添加 Special Tokens 训练模型'
 
 ## 1 引言
 
-本文使用 Qwen2.5-3B-Instruct 模型使用 SFT 为例来介绍如何添加新的 special tokens。实验的运行命令为：
+本文使用 Ministral-3-3B-Instruct-2512 模型通过 SFT 一个图像分类任务为例来介绍如何添加新的 special tokens。实验的运行命令为：
 
 ```bash
-DISABLE_VERSION_CHECK=1 CUDA_VISIBLE_DEVICES=0 python src/train.py examples/train_lora/qwen2.5_lora_sft.yaml
+# install newest transformers
+pip install git+https://github.com/huggingface/transformers
+
+DISABLE_VERSION_CHECK=1 CUDA_VISIBLE_DEVICES=7 python src/train.py examples/train_lora/ministral3_lora_sft.yaml
 ```
 
-需要预先配置好 `qwen2.5_lora_sft.yaml`。
+需要预先配置好 `ministral3_lora_sft.yaml`。
 
 ## 2 数据集加载和预处理
 
@@ -63,7 +66,7 @@ with training_args.main_process_first(desc="pre-process dataset", local=(not dat
     )
 ```
 
-**这段代码完成 `json` 格式数据向格式化数据转换**，例如：
+**这段代码完成 `json` 格式数据向格式化序列数据转换**，例如：
 
 ```
 '_prompt': [{'role': 'user', 'content': 'Transform the following sentence using a synonym: The car sped quickly.'}]
@@ -75,7 +78,7 @@ with training_args.main_process_first(desc="pre-process dataset", local=(not dat
 '<|im_start|>user\nTransform the following sentence using a synonym: The car sped quickly.<|im_end|>\n<|im_start|>assistant\n'
 ```
 
-还完成 tokenization 过程，函数调用流程如下：
+然后完成序列到 token ID 的转换，函数调用流程如下：
 
 `_get_preprocessed_dataset` $\rightarrow$ `SupervisedDatasetProcessor.preprocess_dataset` $\rightarrow$ `SupervisedDatasetProcessor._encode_data_example` $\rightarrow$ `SupervisedDatasetProcessor.template.encode_multiturn` $\rightarrow$ `Template._encode`
 
@@ -123,7 +126,7 @@ def _encode(
     return encoded_messages
 ```
 
-这个函数首先完成格式转换，然后使用 `tokenizer` 将 `elements` 转换为 `token ids` 。
+这个函数首先完成格式转换得到 `elements`，然后使用 `tokenizer` 将 `elements` 转换为 `token ids` 。
 
 ## 3 Special Tokens 参数传递
 
@@ -294,6 +297,174 @@ skip_special_tokens: false  # Must set to false for structured tokens
 
 ### 4.3 可视化界面添加
 
-![image-20251217151544496](https://github.com/user-attachments/assets/5679a55d-f694-415c-8f51-0c0f9b2dbd25)
+![image-20251217151544496](https://github.com/user-attachments/assets/bdb2e719-93b7-468e-9eb4-322507894279)
 
-在 `Extra arguments` 下面添加 原本需要在 yaml 文件下添加的内容即可。
+在 `Extra arguments` 下面添加原本需要在 yaml 文件下添加的内容即可，**这种添加方式和直接在 yaml 文件添加等价**。
+
+## 5 验证 Special Token
+
+这里使用宝可梦图片分类任务验证 special token 是否可以正确添加，并训练和推理。
+
+### 5.1 准备数据集
+
+```python
+from huggingface_hub import snapshot_download
+
+repo_id = "fcakyon/pokemon-classification"
+local_dir = "./pokemon-classification"
+
+snapshot_download(repo_id=repo_id, repo_type="dataset", local_dir=local_dir)
+print("Done！")
+```
+
+使用上面的脚本下载数据集。
+
+解压 `pokemon-classification/data` 下面的 train.zip 文件，使用下面的脚本生成 LLaMA-Factory 适配的 json 文件用于训练。
+
+```python
+import os
+import json
+
+train_dir = "train"
+output_file = "pokemon_dataset.json"
+
+dataset = []
+
+special_tokens_list = []
+
+for class_name in os.listdir(train_dir)[:20]:
+    class_path = os.path.join(train_dir, class_name)
+    if not os.path.isdir(class_path):
+        continue
+
+    special_tokens_list.append(class_name)
+
+    for img_file in os.listdir(class_path):
+        if not img_file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+            continue
+
+        img_path = os.path.join(class_path, img_file)
+
+        data_item = {
+            "messages": [
+                {
+                    "role": "user",
+                    "content": "<image>Who is this Pokemon?"
+                },
+                {
+                    "role": "assistant",
+                    "content": f"[{class_name}]"
+                },
+                {
+                    "role": "user",
+                    "content": "What type is it?<image>"
+                },
+                {
+                    "role": "assistant",
+                    "content": f"[{class_name}]"
+                }
+            ],
+            "images": [
+                img_path,
+                img_path
+            ]
+        }
+
+        dataset.append(data_item)
+
+with open(output_file, "w") as f:
+    json.dump(dataset, f, indent=2)
+
+print(f"Generation completed. A total of {len(dataset)} data entries were generated and saved to {output_file}.")
+special_tokens = ""
+for token in special_tokens_list:
+    special_tokens += f"[{token}],"
+print(f"special_tokens: {special_tokens}.")
+
+```
+
+得到的 json 文件格式如下：
+
+```json
+[
+  {
+    "messages": [
+      {
+        "role": "user",
+        "content": "<image>Who is this Pokemon?"
+      },
+      {
+        "role": "assistant",
+        "content": "[Dratini]"
+      },
+      {
+        "role": "user",
+        "content": "What type is it?<image>"
+      },
+      {
+        "role": "assistant",
+        "content": "[Dratini]"
+      }
+    ],
+    "images": [
+      "train/Dratini/d767470f6a6e44f6b3076282d4d416cf_jpg.rf.0d1a118bbc525e1772ace46ea075ca1e.jpg",
+      "train/Dratini/d767470f6a6e44f6b3076282d4d416cf_jpg.rf.0d1a118bbc525e1772ace46ea075ca1e.jpg"
+    ]
+  }
+]
+```
+
+### 5.2 训练 Pokemon 多模态分类模型
+
+- 注册数据集
+
+把生成的数据集 json 文件和对应的 train 文件夹拷贝到 `LLaMA-Factory/data` 下。然后在 `LLaMA-Factory/data/dataset_info.json` 文件里面加上如下配置用于注册数据集：
+
+```json
+"pokemon_dataset": {
+    "file_name": "pokemon_dataset.json",
+    "formatting": "sharegpt",
+    "columns": {
+        "messages": "messages",
+        "images": "images"
+    },
+    "tags": {
+        "role_tag": "role",
+        "content_tag": "content",
+        "user_tag": "user",
+        "assistant_tag": "assistant"
+    }
+}
+```
+
+- 添加 Special Token 训练模型
+
+```bash
+DISABLE_VERSION_CHECK=1 CUDA_VISIBLE_DEVICES=7 USE_MODELSCOPE_HUB=1 llamafactory-cli webui
+```
+
+本任务使用的 special token 是宝可梦的名字，需要在 Extra arguments 添加 **add_special_tokens** 。
+
+```
+"add_special_tokens":"[Dratini],[Kabuto],[Articuno],[Farfetchd],[Parasect],[Alolan Sandslash],[Gloom],[Jynx],[Muk],[Mew],[Machamp],[Eevee],[Doduo],[Kingler],[Kakuna],[MrMime],[Ninetales],[Golem],[Gyarados],[Dragonite]"
+```
+
+![image-20251218142836625](https://github.com/user-attachments/assets/032a98cc-9e2c-4621-bd26-21f0636e2862)添加完之后可以开始训练了。
+
+![image-20251218103414340](https://github.com/user-attachments/assets/eb0c9970-ca2c-494d-aff3-207c8d85c7c2)
+
+### 5.3 使用模型进行推理
+
+同样需要在 Extra arguments 添加 **"add_special_tokens"**  
+
+![image-20251218143111817](https://github.com/user-attachments/assets/0299db41-68e9-4859-821a-65b4953f00e2)
+
+输入图片进行分类，**由于分类标签是 special token，一定要取消勾选 Skip special tokens**。
+
+![image-20251218143421085](https://github.com/user-attachments/assets/3f65305d-baa1-48a7-94e3-490f2f0ac214)
+
+原始模型的结果如下，
+
+![image-20251218105328875](https://github.com/user-attachments/assets/793a6b10-9da3-44e2-b3b8-f411cb80e441)
+
+说明模型被训练到位了，special tokens 被训练到位了。
