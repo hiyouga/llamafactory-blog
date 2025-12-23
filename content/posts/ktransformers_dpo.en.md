@@ -1,6 +1,6 @@
 ---
 date: '2025-12-23T15:51:07+08:00'
-draft: true
+draft: false
 title: 'RL-DPO Training with KTransformers and LLaMA-Factory'
 ---
 
