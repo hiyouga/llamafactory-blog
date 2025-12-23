@@ -99,7 +99,7 @@ pref_loss: sigmoid  # choices: [sigmoid (dpo), orpo, simpo]
 
 ### dataset
 dataset: dpo_en_demo
-template: llama3
+template: deepseek
 cutoff_len: 2048
 max_samples: 1000
 overwrite_cache: true
@@ -181,12 +181,39 @@ llamafactory-cli api examples/inference/deepseek2_lora_dpo_kt.yaml
 
 ## Error Examples
 
-* **Environment installation errors**
+### Environment Installation Issues
 
 ![f525c0db5631bbd7e5c8cf0ec1580104](https://github.com/user-attachments/assets/42e31aa5-f92a-4f4e-96a2-cb7c80a218fa)
 
-PyTorch, Python, FlashAttention, and CUDA versions must all be consistent.
+PyTorch, Python, FlashAttention, and CUDA **must be version-compatible**.
+Before installing FlashAttention and KTransformers via wheel packages, check the installed versions of Python and PyTorch using:
 
-* **KTransformers only supports CPUs with AMX**
+```bash
+pip list
+```
+
+Then download the corresponding versions from the following links:
+
+* [https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4](https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4)
+* [https://github.com/Dao-AILab/flash-attention/releases](https://github.com/Dao-AILab/flash-attention/releases)
+
+### KTransformers Only Supports CPUs with AMX
 
 ![adf7dad879efc4cf4155008019f9c1e6](https://github.com/user-attachments/assets/2e281d94-f413-4ba5-b928-6d0cd19c9d2b)
+
+**AMX** refers to **Intel Advanced Matrix Extensions**, which is a set of **hardware-accelerated matrix computation instructions** introduced by Intel for **server-class / high-performance CPUs**. It is mainly designed for **AI, deep learning, and HPC** workloads.
+
+You can check whether your CPU supports AMX using the following command:
+
+```bash
+lscpu | grep amx
+```
+
+If you see output similar to:
+
+```bash
+amx_tile amx_int8 amx_bf16
+```
+
+it indicates that your CPU supports AMX.
+

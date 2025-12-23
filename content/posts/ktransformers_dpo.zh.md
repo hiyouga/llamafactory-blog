@@ -97,7 +97,7 @@ pref_loss: sigmoid  # choices: [sigmoid (dpo), orpo, simpo]
 
 ### dataset
 dataset: dpo_en_demo
-template: llama3
+template: deepseek
 cutoff_len: 2048
 max_samples: 1000
 overwrite_cache: true
@@ -183,8 +183,28 @@ llamafactory-cli api examples/inference/deepseek2_lora_dpo_kt.yaml
 
 ![f525c0db5631bbd7e5c8cf0ec1580104](https://github.com/user-attachments/assets/42e31aa5-f92a-4f4e-96a2-cb7c80a218fa)
 
-PyTorch , Python , FlashAttention, cuda 都必须保证一致
+PyTorch , Python , FlashAttention, cuda 都必须保证一致，在使用 wheel 安装 FlashAttention 和 KTransformers 之前，使用如下命令查看安装的 python, torch 的版本
+
+```bash
+pip list
+```
+
+然后去 https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4 和 https://github.com/Dao-AILab/flash-attention/releases 下载对于的版本。
 
 - KTransformers 只支持带有 AMX 功能的 CPU
 
 ![adf7dad879efc4cf4155008019f9c1e6](https://github.com/user-attachments/assets/2e281d94-f413-4ba5-b928-6d0cd19c9d2b)
+
+CPU 的 **AMX** 指的是 **Intel Advanced Matrix Extensions（高级矩阵扩展）**，是 Intel 在 **服务器/高性能 CPU** 上推出的一套 **面向矩阵计算的硬件加速指令集**，主要用于 **AI / 深度学习 / HPC** 场景。可使用如下命令查看是否支持 AMX
+
+```bash
+lscpu | grep amx
+```
+
+出现类似于如下的内容
+
+```bash
+amx_tile amx_int8 amx_bf16
+```
+
+表示 CPU 支持 AMX。
