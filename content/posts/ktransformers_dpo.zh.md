@@ -189,7 +189,19 @@ PyTorch , Python , FlashAttention, cuda 都必须保证一致，在使用 wheel 
 pip list
 ```
 
-然后去 https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4 和 https://github.com/Dao-AILab/flash-attention/releases 下载对于的版本。
+会得到所有包的版本号，找到 torch 的版本号，例如
+
+```
+torch                    2.9.1
+```
+
+结合环境配置 Step 1 安装的 python 版本和 cuda runtime 版本，可以确定 FlashAttention 和 KTransformers 的 wheel 包。
+
+然后去 https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4 和 https://github.com/Dao-AILab/flash-attention/releases 下载对应的版本。
+
+本博客使用 python=3.12，torch=2.9.1，cuda=12.8，并且是 x86 系统，故应该安装：[ktransformers-0.4.4+cu128torch29fancy-cp312-cp312-linux_x86_64.whl](https://github.com/kvcache-ai/ktransformers/releases/download/v0.4.4/ktransformers-0.4.4+cu128torch29fancy-cp312-cp312-linux_x86_64.whl) 和 [flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl](https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl)
+
+其中 `cu` 后缀表示 cuda 版本，`torch` 后缀表示 torch 版本，`cp` 后缀表示 python 版本，`cxx` 后缀表示 c++ 版本，`abi` 后缀表示 abi 是否启用。
 
 - KTransformers 只支持带有 AMX 功能的 CPU
 
@@ -207,4 +219,4 @@ lscpu | grep amx
 amx_tile amx_int8 amx_bf16
 ```
 
-表示 CPU 支持 AMX。
+表示 CPU 支持 AMX，如果未出现上述内容，表示 CPU 不支持 AMX 需要换一台机器。
