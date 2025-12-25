@@ -81,7 +81,7 @@ This blog uses the **DeepSeek-V2-Lite-Chat** model as an example. You may replac
 
 ### 2.2 Configure Training Parameter Files
 
-#### (1) `examples/train_lora/deepseek2_lora_dpo_kt.yaml`
+(1) `examples/train_lora/deepseek2_lora_dpo_kt.yaml`
 
 ```yaml
 ### model
@@ -99,7 +99,7 @@ pref_loss: sigmoid  # choices: [sigmoid (dpo), orpo, simpo]
 
 ### dataset
 dataset: dpo_en_demo
-template: llama3
+template: deepseek
 cutoff_len: 2048
 max_samples: 1000
 overwrite_cache: true
@@ -133,7 +133,7 @@ cpu_infer: 64
 chunk_size: 8192
 ```
 
-#### (2) `examples/inference/deepseek2_lora_dpo_kt.yaml`
+(2) `examples/inference/deepseek2_lora_dpo_kt.yaml`
 
 ```yaml
 model_name_or_path: DeepSeek-V2-Lite-Chat 
@@ -181,12 +181,69 @@ llamafactory-cli api examples/inference/deepseek2_lora_dpo_kt.yaml
 
 ## Error Examples
 
-* **Environment installation errors**
+
+### Environment Installation Errors
 
 ![f525c0db5631bbd7e5c8cf0ec1580104](https://github.com/user-attachments/assets/42e31aa5-f92a-4f4e-96a2-cb7c80a218fa)
 
-PyTorch, Python, FlashAttention, and CUDA versions must all be consistent.
+**PyTorch, Python, FlashAttention, and CUDA must all be version-compatible.**
+Before installing FlashAttention and KTransformers using wheel packages, check the installed Python and Torch versions with the following command:
 
-* **KTransformers only supports CPUs with AMX**
+```bash
+pip list
+```
+
+This will display the versions of all installed packages. Locate the Torch version, for example:
+
+```
+torch                    2.9.1
+```
+
+Based on the Python version and CUDA runtime version installed in **Step 1** of the environment setup, you can determine the correct wheel packages for FlashAttention and KTransformers.
+
+Then download the corresponding versions from:
+
+* [https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4](https://github.com/kvcache-ai/ktransformers/releases/tag/v0.4.4)
+* [https://github.com/Dao-AILab/flash-attention/releases](https://github.com/Dao-AILab/flash-attention/releases)
+
+In this blog, the environment uses:
+
+* **Python** = 3.12
+* **Torch** = 2.9.1
+* **CUDA** = 12.8
+* **Architecture** = x86
+
+Therefore, the correct wheels to install are:
+
+* [ktransformers-0.4.4+cu128torch29fancy-cp312-cp312-linux_x86_64.whl](https://github.com/kvcache-ai/ktransformers/releases/download/v0.4.4/ktransformers-0.4.4+cu128torch29fancy-cp312-cp312-linux_x86_64.whl)
+* [flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl](https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.9cxx11abiTRUE-cp312-cp312-linux_x86_64.whl)
+
+The suffixes in the wheel filenames indicate:
+
+* `cu`: CUDA version
+* `torch`: PyTorch version
+* `cp`: Python version
+* `cxx`: C++ standard
+* `abi`: whether the C++ ABI is enabled
+
+### KTransformers Only Supports CPUs with AMX
 
 ![adf7dad879efc4cf4155008019f9c1e6](https://github.com/user-attachments/assets/2e281d94-f413-4ba5-b928-6d0cd19c9d2b)
+
+**AMX** refers to **Intel Advanced Matrix Extensions**, a set of **hardware-accelerated matrix computation instructions** introduced by Intel for **server and high-performance CPUs**. It is primarily designed for **AI, deep learning, and HPC workloads**.
+
+You can check whether your CPU supports AMX with the following command:
+
+```bash
+lscpu | grep amx
+```
+
+If the output contains something like:
+
+```bash
+amx_tile amx_int8 amx_bf16
+```
+
+then your CPU supports AMX.
+
+If no such output appears, the CPU does **not** support AMX, and you will need to switch to a different machine.
