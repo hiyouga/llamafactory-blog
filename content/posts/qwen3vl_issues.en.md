@@ -96,10 +96,10 @@ LlamaFactory recommends **avoiding torch=2.9 when using Conv3D**. To enforce thi
 See:
 [src/llamafactory/model/loader.py#L210](https://github.com/hiyouga/LlamaFactory/blob/68119e55224886ef21fea66606c5f6dc5d63bc2b/src/llamafactory/model/loader.py#L210)
 
-## 2. `<think>` Token Issues When Applying Zero RL to the Base Model
+## 2. `<think>` Token Issues When Applying Zero RL to the Qwen3-VL-Instruct Model
 
 **Problem:**
-Some users have reported that after applying Zero RL to the Qwen3 base model, the trained model has difficulty following the `<think>` and `</think>` output format.
+Some users have reported that after applying Zero RL to the Qwen3-VL-Instruct model, the trained model has difficulty following the `<think>` and `</think>` output format.
 
 The root cause is that `<think>` and `</think>` are added as **additional special tokens**. In the **base model**, these tokens have never been seen during pretraining, so their embeddings are randomly initialized. As a result, the model may fail to reliably generate these tokens.
 
