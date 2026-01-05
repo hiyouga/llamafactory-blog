@@ -8,7 +8,7 @@ title: 'Qwen3-VL 模型相关问题'
 
 ## 1 Qwen3-VL 模型训练推理速度慢
 
-问题：一些帖子和 issues 提到，在 torch=2.9 并且使用 Conv3D 的情况下，Qwen3-VL 的训练推理速度相较于 torch=2.8 有大幅退化，参考 https://github.com/pytorch/pytorch/issues/166122。
+问题：一些帖子和 issues 提到，在 torch=2.9 并且使用 Conv3D 的情况下，Qwen3-VL 的训练推理速度相较于 torch=2.8 有大幅退化，参考 https://github.com/pytorch/pytorch/issues/166122 。
 
 ### 1.1 检查 kernel 调用区别
 
@@ -89,10 +89,10 @@ nsys profile --trace=cuda,nvtx --stats=true -o conv3d_profile python test_torch_
 
 LlamaFactory 建议用户在使用 Conv3D 时规避 torch=2.9，为此 LlamaFactory 在模型加载时检测是否使用 Conv3D，并且以报错级别给出提示，见 [src/llamafactory/model/loader.py#L210](https://github.com/hiyouga/LlamaFactory/blob/68119e55224886ef21fea66606c5f6dc5d63bc2b/src/llamafactory/model/loader.py#L210) 。
 
-## 2 对 Base 模型做 Zero RL 时 think 标签问题
+## 2 对 Qwen3-VL-Instruct 模型做 Zero RL 时 think 标签问题
 
-问题：一些帖子反映在对 Qwen3 模型做 Zero RL，遇到过训练后的模型的输出很难 follow `<think>` `</think>` 格式的问题。
+问题：一些帖子反映在对 Qwen3-VL-Instruct 模型做 Zero RL，遇到过训练后的模型的输出很难 follow `<think>` `</think>` 格式的问题。
 
-由于 `<think>` 和 `<\think>` 会被设置成额外的 special token，在 base 模型中这两个 token 没有被训练过，所以 embedding 也是初始化的，所以会出现不输出该 token 的情况。
+由于 `<think>` 和 `</think>` 会被设置成额外的 special token，在 base 模型中这两个 token 没有被训练过，所以 embedding 也是初始化的，所以会出现不输出该 token 的情况。
 
-解决方法：替换 `<think>` 和 `<\think>` 为其他单词，比如 `<thinking>` 和 `<\thinking>`  或者其他。
+解决方法：替换 `<think>` 和 `</think>` 为其他单词，比如 `<thinking>` 和 `</thinking>`  或者其他。
