@@ -184,22 +184,22 @@ While using Megatron for training, note the subtle difference in how global batc
 fsdp_global_batch_size = ws * bs * ga
 
 # MCA calculation
-mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga 
+mca_global_batch_size = (ws // pp // tp // cp) * bs * ga 
 ```
 
 **💡 Understanding the difference:**
 
-The key insight is that Megatron's parallelism strategies (PP, TP, EP, CP) partition the available GPUs, so the effective data parallel size is reduced by these factors. Only the remaining GPUs contribute to data parallelism, which directly affects the global batch size.
+The key insight is that Megatron's parallelism strategies (PP, TP, CP) partition the available GPUs, so the effective data parallel size is reduced by these factors. Only the remaining GPUs contribute to data parallelism, which directly affects the global batch size.
 
 **📊 Example:**
 ```bash
 # Setup: 16 GPUs, PP=2, TP=2, EP=2, CP=1, bs=4, ga=2
-# Data parallel size = 16 // 2 // 2 // 2 // 1 = 2
-# Global batch size = 2 * 4 * 2 = 16
+# Data parallel size = 16 // 2 // 2 = 4
+# Global batch size = 4 * 4 * 2 = 32
 
 # If you add CP=2 for long context:
-# Data parallel size = 16 // 2 // 2 // 2 // 2 = 1
-# Global batch size = 1 * 4 * 2 = 8 (halved!)
+# Data parallel size = 16 // 2 // 2 // 2 = 2
+# Global batch size = 2 * 4 * 2 = 16 (halved!)
 ```
 
 #### 4.2 ⚡ Performance optimization
@@ -214,5 +214,5 @@ The key insight is that Megatron's parallelism strategies (PP, TP, EP, CP) parti
 
 - **💥 OOM Errors**: reduce `per_device_train_batch_size` or `gradient_accumulation_steps`, or enable context parallelism for long sequences and check whether the `use_distributed_optimizer` is enabled.
 - **🌐 Communication timeouts**: check network connectivity, `master_addr` and `master_port`
-- **⚙️ Parallel settings**: ensure `pp * tp * ep * cp` divides `ws` evenly
-- **📉 Small global batch size**: if your global batch size becomes too small due to high parallelism (PP/TP/EP/CP), consider increasing `gradient_accumulation_steps` or reducing parallelism degrees where possible
+- **⚙️ Parallel settings**: ensure `pp * tp * cp` divides `ws` evenly
+- **📉 Small global batch size**: if your global batch size becomes too small due to high parallelism (PP/TP/CP), consider increasing `gradient_accumulation_steps` or reducing parallelism degrees where possible
