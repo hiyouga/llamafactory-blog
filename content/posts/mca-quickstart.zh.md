@@ -184,21 +184,21 @@ python scripts/megatron_merge.py \
 fsdp_global_batch_size = ws * bs * ga
 
 # MCA 计算方式
-mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga
+mca_global_batch_size = (ws // pp // tp // cp) * bs * ga
 ```
 
 **💡 差异说明：**  
-关键在于，Megatron 的并行策略（PP、TP、EP、CP）会将总 GPU 划分，使得用于数据并行的有效 GPU 数减少。只有剩余的 GPU 参与数据并行，从而直接影响全局批大小。  
+关键在于，Megatron 的并行策略（PP、TP、CP）会将总 GPU 划分，使得用于数据并行的有效 GPU 数减少。只有剩余的 GPU 参与数据并行，从而直接影响全局批大小。  
 
 **📊 示例：**
 ```bash
 # 设置：16 块 GPU, PP=2, TP=2, EP=2, CP=1, bs=4, ga=2
-# 数据并行尺寸 = 16 // 2 // 2 // 2 // 1 = 2
-# 全局批大小 = 2 * 4 * 2 = 16
+# 数据并行尺寸 = 16 // 2 // 2 // 1 = 4
+# 全局批大小 = 4 * 4 * 2 = 32
 
 # 如果增加 CP=2 用于长上下文：
-# 数据并行尺寸 = 16 // 2 // 2 // 2 // 2 = 1
-# 全局批大小 = 1 * 4 * 2 = 8
+# 数据并行尺寸 = 16 // 2 // 2 // 2 = 2
+# 全局批大小 = 2 * 4 * 2 = 16
 ```
 
 #### 4.2 ⚡ 性能优化
@@ -213,5 +213,5 @@ mca_global_batch_size = (ws // pp // tp // ep // cp) * bs * ga
 
 - **💥 OOM（显存不足）错误**：减少 `per_device_train_batch_size` 或 `gradient_accumulation_steps`，或在长序列时启用上下文并行，并检查是否已启用 `use_distributed_optimizer`  
 - **🌐 通信超时**：检查网络连接、`master_addr` 和 `master_port`  
-- **⚙️ 并行设置**：确保 `pp * tp * ep * cp` 能整除 `ws`  
-- **📉 全局批大小过小**：如果由于过高的并行度（PP/TP/EP/CP）导致全局批大小过小，考虑增加 `gradient_accumulation_steps` 或适当降低并行度  
+- **⚙️ 并行设置**：确保 `pp * tp * cp` 能整除 `ws`  
+- **📉 全局批大小过小**：如果由于过高的并行度（PP/TP/CP）导致全局批大小过小，考虑增加 `gradient_accumulation_steps` 或适当降低并行度  
