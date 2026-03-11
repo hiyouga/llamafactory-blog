@@ -28,6 +28,14 @@ Install the LlamaFactory environment dependencies:
 pip install -e .
 ```
 
+**[Optional]** You may install Flash Linear Attention to accelerate training and inference. Installing from source is recommended, while installing from PyPI is not recommended as it may lead to performance degradation. The installation commands are as follows:
+
+
+```
+# uninstall both packages first to ensure a successful upgrade
+pip uninstall fla-core flash-linear-attention -y && pip install -U git+https://github.com/fla-org/flash-linear-attention
+```
+
 Run the following command. If the LlamaFactory version is displayed, the installation was successful.
 
 ```bash
