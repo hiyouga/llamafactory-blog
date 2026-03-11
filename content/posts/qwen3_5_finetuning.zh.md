@@ -29,6 +29,13 @@ cd LlamaFactory
 pip install -e .
 ```
 
+**[可选]** 可以安装 [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) 获得训练推理加速效果。推荐使用源码安装方式，不推荐使用 PyPI 安装，可能会导致性能衰退，安装命令如下：
+
+```
+# uninstall both packages first to ensure a successful upgrade
+pip uninstall fla-core flash-linear-attention -y && pip install -U git+https://github.com/fla-org/flash-linear-attention
+```
+
 运行如下命令，如果显示 LlamaFactory 的版本，则表示安装成功。
 
 ```bash
